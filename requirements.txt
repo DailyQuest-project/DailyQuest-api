@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+pydantic[email]    # <-- Change this line
+pydantic-settings
+passlib[bcrypt]==1.7.4
+bcrypt==3.2.0
