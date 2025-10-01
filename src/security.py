@@ -1,5 +1,7 @@
 from passlib.context import CryptContext
 
+# Hash de senhas com bcrypt
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def hash_password(password: str) -> str:

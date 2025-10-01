@@ -1,4 +1,4 @@
-# Modifique o arquivo: backend/src/database.py
+# Conexão SQLAlchemy e sessões
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base

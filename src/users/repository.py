@@ -2,6 +2,8 @@ from sqlalchemy.orm import Session
 from . import model, schema
 from ..security import hash_password
 
+# Lógica de acesso a dados
+
 class UserRepository:
     def get_user_by_email(self, db: Session, email: str):
         return db.query(model.User).filter(model.User.email == email).first()

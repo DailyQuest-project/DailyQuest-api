@@ -2,7 +2,10 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 psycopg2-binary
-pydantic[email]    # <-- Change this line
+pydantic
 pydantic-settings
-passlib[bcrypt]==1.7.4
+email-validator
+passlib[bcrypt]
 bcrypt==3.2.0
+python-dotenv
+pytest

@@ -1,9 +1,10 @@
-# Crie o arquivo: backend/src/users/router.py
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from ..database import get_db
 from . import schema
 from .repository import UserRepository
+
+# Endpoints HTTP da API
 
 router = APIRouter(
     prefix="/users",
