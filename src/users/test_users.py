@@ -1,6 +1,6 @@
 import pytest
 from src.users.model import User
-from src.security import hash_password
+from src.utils import hash_password
 
 
 class TestUser:
