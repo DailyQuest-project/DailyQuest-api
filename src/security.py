@@ -1,11 +1,28 @@
-from passlib.context import CryptContext
+# Modifique este arquivo: src/security.py
 
-# Hash de senhas com bcrypt
+import os
+from jose import jwt, JWTError
+from datetime import datetime, timedelta
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from pydantic import BaseModel
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from .config import settings
+from .utils import hash_password, verify_password # Importa de utils
 
-def hash_password(password: str) -> str:
-    return pwd_context.hash(password)
+# ---- SEÇÕES DE JWT ----
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.JWT_ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return encoded_jwt

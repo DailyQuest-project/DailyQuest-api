@@ -9,3 +9,5 @@ passlib[bcrypt]
 bcrypt==3.2.0
 python-dotenv
 pytest
+python-jose[cryptography]
+python-multipart
