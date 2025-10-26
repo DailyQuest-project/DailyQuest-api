@@ -9,6 +9,13 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - dailyquest-net # Conecta na nossa rede
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dailyquest -d dailyquest_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   backend:
     build: .  # O contexto da build agora é a pasta raiz, onde o Dockerfile está
@@ -18,10 +25,19 @@ services:
       # As variáveis agora são lidas pelo config.py, mas é bom manter aqui para referência
       DATABASE_URL: "postgresql://dailyquest:dev123@db:5432/dailyquest_db"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       # Mapeia a pasta src local para /app/src dentro do container
       - ./src:/app/src 
+    networks:
+      - dailyquest-net # Conecta na nossa rede
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+
+networks:
+  # Cria a rede que será compartilhada
+  dailyquest-net:
+    name: dailyquest-net
