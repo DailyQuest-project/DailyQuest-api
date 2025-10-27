@@ -65,7 +65,7 @@ class TestTaskAPI:
                 "frequency_type": "DAILY",
             },
         )
-        assert response_habit.status_code == 200
+        assert response_habit.status_code == 201
         assert response_habit.json()["task_type"] == "habit"
 
         # Cria ToDo
@@ -77,7 +77,7 @@ class TestTaskAPI:
                 "deadline": "2025-11-30",
             },
         )
-        assert response_todo.status_code == 200
+        assert response_todo.status_code == 201
         assert response_todo.json()["task_type"] == "todo"
 
     def test_list_all_tasks(self, auth_client: TestClient):
@@ -206,7 +206,7 @@ class TestTaskEndpoints:
             "/api/v1/tasks/habits/", json=habit_data, headers=auth_headers
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["title"] == "Morning Exercise"
         assert data["difficulty"] == "EASY"
@@ -225,7 +225,7 @@ class TestTaskEndpoints:
             "/api/v1/tasks/todos/", json=todo_data, headers=auth_headers
         )
 
-        assert response.status_code == 200
+        assert response.status_code == 201
         data = response.json()
         assert data["title"] == "Buy groceries"
         assert data["difficulty"] == "MEDIUM"
@@ -295,9 +295,9 @@ class TestTaskEndpoints:
 @pytest.mark.parametrize(
     "difficulty,frequency_type,expected_status",
     [
-        ("EASY", "DAILY", 200),
-        ("MEDIUM", "WEEKLY_TIMES", 200),
-        ("HARD", "SPECIFIC_DAYS", 200),
+        ("EASY", "DAILY", 201),
+        ("MEDIUM", "WEEKLY_TIMES", 201),
+        ("HARD", "SPECIFIC_DAYS", 201),
         ("INVALID", "DAILY", 422),  # Dificuldade inválida
         ("EASY", "INVALID", 422),  # Frequência inválida
     ],
@@ -384,7 +384,7 @@ class TestTaskFlow:
             headers=auth_headers,
         )
 
-        assert create_response.status_code == 200
+        assert create_response.status_code == 201
         habit_id = create_response.json()["id"]
 
         # 2. Listar e verificar se aparece
