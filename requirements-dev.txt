@@ -1,0 +1,15 @@
+# requirements-dev.txt
+
+# Formatter
+black
+
+# Linter
+flake8
+
+# Type Checker
+mypy
+
+# Pytest e plugins (já devem estar aqui se você seguiu os testes)
+pytest
+pytest-cov
+httpx
