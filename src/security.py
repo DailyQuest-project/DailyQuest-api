@@ -9,7 +9,6 @@ from pydantic import BaseModel
 from src.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from src.utils import verify_password as utils_verify_password
 
-# ---- SEÇÕES DE JWT ----
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")

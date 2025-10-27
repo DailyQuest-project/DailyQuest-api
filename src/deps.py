@@ -13,8 +13,6 @@ from .config import SECRET_KEY, ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
-
-# --- Dependência 1: Obter a Sessão do Banco ---
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
@@ -22,8 +20,6 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
-
-# --- Dependência 2: Obter o Usuário Logado (Movido de security.py) ---
 async def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:

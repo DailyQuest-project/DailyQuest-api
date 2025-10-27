@@ -8,7 +8,7 @@ from ..users.schema import User
 class TaskCompletionCreate(BaseModel):
     """Schema para criar um TaskCompletion"""
 
-    pass  # Não precisa de campos, tudo será inferido
+    pass 
 
 
 class TaskCompletionResponse(BaseModel):

@@ -7,18 +7,14 @@ import time
 from typing import Generator
 from src.config import DATABASE_URL
 
-# Configuração do banco de dados
 DATABASE_URL = os.getenv(
     "DATABASE_URL", "postgresql://user:password@localhost/dailyquest"
 )
 
-# Criação do engine
 engine = create_engine(DATABASE_URL)
 
-# Criação da sessão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base para os modelos
 Base = declarative_base()
 
 
@@ -41,11 +37,9 @@ def create_tables() -> None:
     Base.metadata.create_all(bind=engine)
 
 
-# Função para obter a sessão do banco
 def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
-        # Testar a conexão
         db.execute(text("SELECT 1"))
         yield db
     except Exception as e:

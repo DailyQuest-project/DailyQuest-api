@@ -13,21 +13,15 @@ from src.tags.model import Tag
 from src.Task.model import Habit, ToDo
 from src.utils import hash_password
 
-# --- Configuração do Banco de Dados de Teste ---
-# LÊ A URL DO AMBIENTE (definida no docker-compose.yml ou usa SQLite como fallback)
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///:memory:")
 
-# Configurações específicas por tipo de banco
 engine_args = {}
 if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
-    # SQLite precisa de configurações especiais para threads
     engine_args = {
         "connect_args": {"check_same_thread": False},
         "poolclass": StaticPool,
     }
 elif SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
-    # PostgreSQL não precisa dessas configurações
-    # psycopg2 já lida com threads corretamente
     engine_args = {}
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, **engine_args)
@@ -37,7 +31,6 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def db_session():
     """Fixture que cria uma sessão de banco de dados para cada teste."""
-    # Garante que está limpo antes de criar
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     session = TestingSessionLocal()
@@ -45,7 +38,6 @@ def db_session():
         yield session
     finally:
         session.close()
-        # Limpa depois do teste
         Base.metadata.drop_all(bind=engine)
 
 

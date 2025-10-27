@@ -42,17 +42,14 @@ tags_metadata = [
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Gerencia o ciclo de vida da aplicação"""
-    # Startup
     print("API iniciando... Aguardando banco de dados...")
     wait_for_db()
     print("Criando tabelas...")
     create_tables()
     print("Rodando o seed do banco de dados...")
-    # Chama a função de seed aqui
     seed_database() 
     print("Seeding concluído (ou dados já existiam). API pronta.")
     yield
-    # Shutdown (se necessário no futuro)
     print("API desligando...")
 
 
