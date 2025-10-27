@@ -1,19 +1,28 @@
 # Conexão SQLAlchemy e sessões
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+import os
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
 from sqlalchemy.exc import OperationalError
-from .config import settings
 import time
+from typing import Generator
+from src.config import DATABASE_URL
 
-# Usa a URL do arquivo de configuração
-SQLALCHEMY_DATABASE_URL = settings.DATABASE_URL
+# Configuração do banco de dados
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@localhost/dailyquest"
+)
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+# Criação do engine
+engine = create_engine(DATABASE_URL)
+
+# Criação da sessão
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Base para os modelos
 Base = declarative_base()
 
-def wait_for_db(max_retries: int = 30, delay: float = 1):
+
+def wait_for_db(max_retries: int = 30, delay: float = 1) -> bool:
     """Wait for database to be ready with retry mechanism"""
     for attempt in range(max_retries):
         try:
@@ -26,13 +35,21 @@ def wait_for_db(max_retries: int = 30, delay: float = 1):
                 raise
     return False
 
-def create_tables():
+
+def create_tables() -> None:
     """Create database tables"""
     Base.metadata.create_all(bind=engine)
 
-def get_db():
+
+# Função para obter a sessão do banco
+def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
+        # Testar a conexão
+        db.execute(text("SELECT 1"))
         yield db
+    except Exception as e:
+        db.rollback()
+        raise e
     finally:
         db.close()
