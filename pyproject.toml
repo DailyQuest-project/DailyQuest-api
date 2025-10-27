@@ -1,0 +1,30 @@
+# pyproject.toml
+
+[tool.black]
+# Configura o black
+line-length = 88 # Padrão do black, pode ajustar se preferir
+target-version = ['py310'] # Versão do Python que você está usando
+
+[tool.flake8]
+# Configura o flake8
+max-line-length = 88 # Para combinar com o black
+extend-ignore = [
+    "E501", # Ignora erro de linha muito longa (o black cuida disso)
+    "W503", # Ignora erro de quebra de linha antes de operador binário (black faz diferente)
+    "E203", # Ignora erro de espaço antes de ':' (conflita com black)
+]
+max-complexity = 10 # Limita a complexidade das funções (bom para SOLID/Clean Code)
+exclude = [
+    ".venv",
+    ".git",
+    "__pycache__",
+    "htmlcov", # Ignora a pasta de relatórios de cobertura
+]
+
+[tool.mypy]
+# Configura o mypy
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true # Útil no início, evita erros de libs sem type hints
+exclude = ["venv", "htmlcov"] # Pastas a ignorar
