@@ -9,5 +9,9 @@ passlib[bcrypt]
 bcrypt==3.2.0
 python-dotenv
 pytest
+pytest-cov
+pytest-asyncio
+pytest-mock
+httpx
 python-jose[cryptography]
 python-multipart
