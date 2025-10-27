@@ -9,13 +9,9 @@ from .repository import TagRepository
 
 router = APIRouter(prefix="/tags", tags=["Tags"])
 
-
-# Dependency para o repository
 def get_tag_repository():
     return TagRepository()
 
-
-# US#7 - Criar tag
 @router.post("/", response_model=schema.TagResponse)
 def create_tag(
     tag: schema.TagCreate,
@@ -28,8 +24,6 @@ def create_tag(
     """
     return repo.create_tag(db=db, tag=tag, user_id=current_user.id)
 
-
-# US#7 - Listar tags do usuário
 @router.get("/", response_model=List[schema.TagResponse])
 def get_user_tags(
     current_user: User = Depends(get_current_user),
@@ -42,7 +36,6 @@ def get_user_tags(
     return repo.get_tags_by_user(db=db, user_id=current_user.id)
 
 
-# Buscar tag específica
 @router.get("/{tag_id}", response_model=schema.TagResponse)
 def get_tag(
     tag_id: UUID,
@@ -62,8 +55,6 @@ def get_tag(
 
     return tag
 
-
-# Atualizar tag
 @router.put("/{tag_id}", response_model=schema.TagResponse)
 def update_tag(
     tag_id: UUID,
@@ -86,8 +77,6 @@ def update_tag(
 
     return updated_tag
 
-
-# Deletar tag
 @router.delete("/{tag_id}")
 def delete_tag(
     tag_id: UUID,

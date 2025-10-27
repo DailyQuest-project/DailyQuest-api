@@ -16,7 +16,6 @@ class DashboardRepository:
         Busca o histórico de conclusões de tarefas (US#9).
         Ordena pelas mais recentes primeiro.
         """
-        # Fazer join para carregar os dados da task associada
         return (
             db.query(TaskCompletion)
             .filter(TaskCompletion.user_id == user_id)
@@ -42,7 +41,7 @@ class DashboardRepository:
             .filter(Habit.user_id == user.id, Habit.is_active == True)
             .scalar()
             or 0
-        )  # Retorna 0 se for None
+        )  
 
         return {
             "total_xp": user.xp,

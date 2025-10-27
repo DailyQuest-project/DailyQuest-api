@@ -18,13 +18,11 @@ class HabitCreate(BaseModel):
     description: Optional[str] = None
     difficulty: Difficulty = Difficulty.EASY
 
-    # --- NOVOS CAMPOS DE FREQUÊNCIA ---
     frequency_type: HabitFrequencyType = HabitFrequencyType.DAILY
 
-    # (ex: 3, para "3 vezes por semana")
     frequency_target_times: Optional[int] = Field(
         None, gt=0, lt=8
-    )  # Deve ser entre 1 e 7
+    ) 
 
     # Lista de dias da semana (0=Segunda, 6=Domingo) - apenas para SPECIFIC_DAYS
     frequency_days: Optional[List[int]] = Field(None, max_length=7)
@@ -35,14 +33,13 @@ class HabitResponse(TaskBase):
     
     id: UUID
     user_id: UUID
-    task_type: str = "habit"  # Add task_type field
+    task_type: str = "habit" 
     current_streak: int = 0
     best_streak: int = 0
     last_completed_at: Optional[datetime] = None
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    # Novos campos de frequência
     frequency_type: HabitFrequencyType
     frequency_target_times: Optional[int] = None
     frequency_days_of_week: Optional[int] = None  # Bitmask salvo no banco
@@ -60,8 +57,6 @@ class HabitResponse(TaskBase):
                 days.append(i)
         return days
 
-
-# ToDo schemas
 class ToDoCreate(TaskBase):
     deadline: Optional[date] = None
 
@@ -71,12 +66,10 @@ class ToDoResponse(TaskBase):
     
     id: UUID
     user_id: UUID
-    task_type: str = "todo"  # Add task_type field
+    task_type: str = "todo"  
     deadline: Optional[date] = None
-    completed: bool = False  # Change from is_completed to completed
+    completed: bool = False  
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-
-# Union response for listing all tasks
 TaskResponse = Union[HabitResponse, ToDoResponse]

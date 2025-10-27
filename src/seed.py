@@ -4,7 +4,6 @@ import sys
 import os
 from typing import Dict, Any, List
 
-# Adiciona o diretório raiz ao Python path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.database import SessionLocal, engine, Base
@@ -14,15 +13,11 @@ from src.utils import hash_password
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
-# Importa usando o caminho completo desde src/
 from src.config import DATABASE_URL
 
-# Usa a configuração do projeto
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Lista de todas as conquistas que queremos que existam
 ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
     {
         "name": "Nível 5",
@@ -70,12 +65,11 @@ ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
 
 
 def seed_database() -> None:
-    print("🌱 Iniciando o seeding do banco de dados...")
+    print(" Iniciando o seeding do banco de dados...")
     db = SessionLocal()
 
     try:
         for ach_data in ACHIEVEMENTS_TO_SEED:
-            # Verifica se a conquista já existe (pela chave)
             exists = (
                 db.query(Achievement)
                 .filter(Achievement.requirement_key == ach_data["requirement_key"])
@@ -84,7 +78,6 @@ def seed_database() -> None:
             )
 
             if not exists:
-                # Cria a nova conquista
                 new_ach = Achievement(**ach_data)
                 db.add(new_ach)
                 print(f"  ✅ Criando conquista: {ach_data['name']} {ach_data['icon']}")
@@ -92,10 +85,10 @@ def seed_database() -> None:
                 print(f"  ⏭️  Conquista já existe: {ach_data['name']}")
 
         db.commit()
-        print("🎉 Seeding concluído com sucesso!")
-        print(f"📊 Total de conquistas no banco: {db.query(Achievement).count()}")
+        print(" Seeding concluído com sucesso!")
+        print(f" Total de conquistas no banco: {db.query(Achievement).count()}")
     except Exception as e:
-        print(f"❌ Erro durante o seeding: {e}")
+        print(f" Erro durante o seeding: {e}")
         db.rollback()
         raise
     finally:

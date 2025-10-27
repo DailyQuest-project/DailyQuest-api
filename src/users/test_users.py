@@ -7,7 +7,7 @@ from src.users.model import User
 from src.utils import hash_password, verify_password
 
 
-# --- Testes Unitários (Os que você já tinha) ---
+# --- Testes Unitários  ---
 class TestUserModel:
     def test_user_creation_basic(self):
         """Testa a criação do modelo User"""
@@ -90,7 +90,7 @@ class TestUserRepository:
         ), f"Expected username '{test_user.username}', got '{found_user.username}'"
 
 
-# --- Testes de Integração (Testando a API) ---
+# --- Testes de Integração ---
 class TestUserAPI:
     def test_create_user_success(self, client: TestClient):
         """Testa a criação de usuário com sucesso (US#1)"""
@@ -118,7 +118,6 @@ class TestUserAPI:
                 "password": "pass123",
             },
         )
-        # Tenta criar de novo com o mesmo email
         response = client.post(
             "/api/v1/users/",
             json={
@@ -133,7 +132,7 @@ class TestUserAPI:
     def test_get_user_me_unauthorized(self, client: TestClient):
         """Testa se a rota /me é protegida sem token"""
         response = client.get("/api/v1/users/me")
-        assert response.status_code == 401  # 401 Unauthorized
+        assert response.status_code == 401  
 
 
 class TestUserEndpoints:

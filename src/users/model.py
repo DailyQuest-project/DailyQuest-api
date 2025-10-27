@@ -4,13 +4,10 @@ from sqlalchemy.dialects.postgresql import UUID
 from typing import Any
 from ..database import Base
 
-
-# Modelo SQLAlchemy da tabela users
 class User(Base):
     __tablename__ = "users"
 
     def __init__(self, **kwargs: Any) -> None:
-        # Set defaults before calling super().__init__
         kwargs.setdefault("xp", 0)
         kwargs.setdefault("level", 1)
         kwargs.setdefault("coins", 0)

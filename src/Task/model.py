@@ -19,20 +19,16 @@ from ..database import Base
 if TYPE_CHECKING:
     from sqlalchemy.sql.schema import Column as ColumnType
 
-
-# Define os tipos de dificuldade
 class Difficulty(str, PyEnum):
     EASY = "EASY"
     MEDIUM = "MEDIUM"
     HARD = "HARD"
 
 
-# --- NOVO ENUM PARA O TIPO DE FREQUÊNCIA ---
-# Este Enum define o *comportamento* do hábito
 class HabitFrequencyType(str, PyEnum):
-    DAILY = "DAILY"  # Todo dia
-    WEEKLY_TIMES = "WEEKLY_TIMES"  # X vezes por semana
-    SPECIFIC_DAYS = "SPECIFIC_DAYS"  # Dias específicos (ex: Seg/Sex)
+    DAILY = "DAILY" 
+    WEEKLY_TIMES = "WEEKLY_TIMES" 
+    SPECIFIC_DAYS = "SPECIFIC_DAYS" 
 
 
 class Task(Base):
@@ -44,10 +40,9 @@ class Task(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = Column(Boolean, default=True)  # Movido para a classe base
+    is_active = Column(Boolean, default=True) 
     difficulty = Column(Enum(Difficulty), nullable=False)
 
-    # Coluna "Tipo" (Discriminador) para a Herança de Tabela Única
     task_type = Column(String(50))
 
     # Colunas específicas do Habit (nullable para ToDos)
@@ -62,7 +57,6 @@ class Task(Base):
     completed = Column(Boolean, default=False, nullable=True)
     completed_at = Column(DateTime, nullable=True)
 
-    # Relacionamento many-to-many com Tag
     tags = relationship("Tag", secondary="task_tags", back_populates="tasks")
 
     __mapper_args__ = {
@@ -70,15 +64,9 @@ class Task(Base):
         "polymorphic_on": task_type,
     }
 
-
-# --- CLASSE HABIT MODIFICADA PARA HERANÇA DE TABELA ÚNICA ---
-class Habit(Task):
-    # Removido __tablename__ e ForeignKey para usar Herança de Tabela Única
-    
+class Habit(Task):    
     __mapper_args__ = {"polymorphic_identity": "habit"}
 
 
-class ToDo(Task):
-    # Removido __tablename__ e ForeignKey para usar Herança de Tabela Única
-    
+class ToDo(Task):    
     __mapper_args__ = {"polymorphic_identity": "todo"}

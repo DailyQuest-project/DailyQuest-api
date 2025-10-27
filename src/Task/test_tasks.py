@@ -16,7 +16,7 @@ def _convert_days_list_to_bitmask(days_list):
     return bitmask
 
 
-# --- Teste Unitário e Parametrizado (Requisito do Checklist) ---
+# --- Teste Unitário e Parametrizado---
 @pytest.mark.parametrize(
     "days_list, expected_bitmask",
     [
@@ -105,8 +105,6 @@ class TestTaskRepository:
     def test_create_habit_success(self, db_session: Session, test_user: User):
         """US#3 - Teste unitário: criar hábito"""
         repo = TaskRepository()
-
-        # Mock do schema
         class MockHabitCreate:
             title = "Test Habit"
             description = "Test description"
@@ -125,8 +123,6 @@ class TestTaskRepository:
     def test_create_todo_success(self, db_session: Session, test_user: User):
         """US#8 - Teste unitário: criar todo"""
         repo = TaskRepository()
-
-        # Mock do schema
         class MockTodoCreate:
             title = "Test Todo"
             description = "Test todo description"
@@ -158,7 +154,6 @@ class TestTaskRepository:
         """US#10 - Teste unitário: atualizar hábito"""
         repo = TaskRepository()
 
-        # Mock do schema de update
         class MockHabitUpdate:
             title = "Updated Habit"
             description = "Updated description"
@@ -185,7 +180,6 @@ class TestTaskRepository:
 
         assert result is True
 
-        # Verificar se foi realmente deletado
         deleted_habit = repo.get_task_by_id(db_session, test_habit.id, test_user.id)
         assert deleted_habit is None
 

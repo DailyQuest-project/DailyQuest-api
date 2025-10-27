@@ -2,8 +2,6 @@ from sqlalchemy.orm import Session
 from . import model, schema
 from ..utils import hash_password
 
-# Lógica de acesso a dados
-
 
 class UserRepository:
     def get_user_by_email(self, db: Session, email: str):

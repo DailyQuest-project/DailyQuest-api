@@ -22,13 +22,11 @@ class AchievementRepository:
             db.query(UserAchievement)
             .filter(UserAchievement.user_id == user_id)
             .options(
-                joinedload(UserAchievement.achievement)  # Usar o relacionamento correto
+                joinedload(UserAchievement.achievement) 
             )
             .order_by(UserAchievement.unlocked_at.desc())
             .all()
         )
-
-    # --- NOVAS FUNÇÕES DO "MOTOR" ---
 
     def get_achievement_by_key(
         self, db: Session, key: AchievementKey
@@ -58,7 +56,7 @@ class AchievementRepository:
         Verifica antes para não duplicar.
         """
         if not achievement:
-            return  # A conquista não existe no banco de dados
+            return 
 
         # Get achievement ID as UUID value
         achievement_id = getattr(achievement, "id")
@@ -71,7 +69,7 @@ class AchievementRepository:
             db.add(new_unlock)
             print(
                 f"--- CONQUISTA DESBLOQUEADA: {achievement.name} ---"
-            )  # Log no console
+            )  
 
     def check_and_unlock_achievements(
         self, db: Session, user: User, completed_task: Task
@@ -80,8 +78,6 @@ class AchievementRepository:
         O "Motor" principal. Verifica todas as conquistas relevantes
         após a conclusão de uma tarefa.
         """
-
-        # Get user ID as UUID value
         user_id = getattr(user, "id")
         user_level = getattr(user, "level", 1)
 

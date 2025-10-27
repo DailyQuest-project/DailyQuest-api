@@ -3,8 +3,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from . import model, schema
-from ..tags.model import Tag  # Importe o modelo Tag
-
+from ..tags.model import Tag 
 
 def _convert_days_list_to_bitmask(days: List[int]) -> int:
     """Converte uma lista de dias [0, 4] para um bitmask (17)."""
@@ -42,7 +41,6 @@ class TaskRepository:
             description=habit.description,
             difficulty=habit.difficulty,
             user_id=user_id,
-            # --- SALVANDO A NOVA FREQUÊNCIA ---
             frequency_type=habit.frequency_type,
             frequency_target_times=habit.frequency_target_times,
             frequency_days_of_week=bitmask_days,
@@ -91,19 +89,17 @@ class TaskRepository:
         habit_update: schema.HabitCreate,
     ) -> Optional[model.Habit]:
         """Atualizar um hábito existente"""
-        # --- MUDANÇA: Consulte Task filtrando por tipo ---
         db_habit = (
             db.query(model.Task)
             .filter(
                 model.Task.id == habit_id, 
                 model.Task.user_id == user_id,
-                model.Task.task_type == 'habit'  # Garante que é um hábito
+                model.Task.task_type == 'habit' 
             )
             .first()
         )
 
         if db_habit:
-            # Converter frequency_days para bitmask se necessário
             bitmask_days = None
             if (
                 habit_update.frequency_type == model.HabitFrequencyType.SPECIFIC_DAYS
@@ -128,13 +124,12 @@ class TaskRepository:
 
     def delete_habit(self, db: Session, habit_id: UUID, user_id: UUID) -> bool:
         """Deletar um hábito"""
-        # --- MUDANÇA: Consulte Task filtrando por tipo ---
         db_habit = (
             db.query(model.Task)
             .filter(
                 model.Task.id == habit_id, 
                 model.Task.user_id == user_id,
-                model.Task.task_type == 'habit'  # Garante que é um hábito
+                model.Task.task_type == 'habit' 
             )
             .first()
         )
@@ -142,11 +137,10 @@ class TaskRepository:
         if db_habit:
             db.delete(db_habit)
             db.commit()
-            return True  # RETORNA TRUE quando deleta com sucesso
+            return True 
 
-        return False  # RETORNA FALSE quando não encontra
+        return False 
 
-    # --- FUNÇÃO 1: Associar Tag ---
     def add_tag_to_task(self, db: Session, task: model.Task, tag: Tag) -> model.Task:
         """Associa uma tag a uma tarefa."""
         if tag not in task.tags:
@@ -155,7 +149,6 @@ class TaskRepository:
             db.refresh(task)
         return task
 
-    # --- FUNÇÃO 2: Desassociar Tag ---
     def remove_tag_from_task(
         self, db: Session, task: model.Task, tag: Tag
     ) -> model.Task:
@@ -166,7 +159,6 @@ class TaskRepository:
             db.refresh(task)
         return task
 
-    # --- FUNÇÃO 3: Filtrar Tarefas por Tag (US#12) ---
     def get_tasks_by_tag(
         self, db: Session, user_id: UUID, tag_id: UUID
     ) -> List[model.Task]:
@@ -177,7 +169,7 @@ class TaskRepository:
             db.query(model.Task)
             .filter(
                 model.Task.user_id == user_id,
-                model.Task.tags.any(id=tag_id),  # A mágica do SQLAlchemy
+                model.Task.tags.any(id=tag_id), 
             )
             .all()
         )

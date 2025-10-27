@@ -2,8 +2,6 @@ from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from typing import Optional, Any
 import uuid
 
-
-# Schemas Pydantic para validação e serialização de dados
 class UserCreate(BaseModel):
     username: str
     email: EmailStr

@@ -11,9 +11,6 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..users.model import User
-
-
-# Um Enum para o "requirement_key" que você pode usar internamente
 class AchievementKey(str, PyEnum):
     LEVEL_5 = "LEVEL_5"
     LEVEL_10 = "LEVEL_10"
@@ -22,8 +19,6 @@ class AchievementKey(str, PyEnum):
     STREAK_3 = "STREAK_3_DAYS"
     STREAK_7 = "STREAK_7_DAYS"
 
-
-# Tabela de Definições de Conquistas (o que são)
 class Achievement(Base):
     __tablename__ = "achievements"
 
@@ -34,14 +29,11 @@ class Achievement(Base):
     category = Column(String(50), nullable=False)
     requirement_key = Column(Enum(AchievementKey), nullable=False)
 
-
-# Tabela de Conquistas Desbloqueadas (o que o usuário tem)
 class UserAchievement(Base):
     __tablename__ = "user_achievements"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 
-    # Atributos do UML
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     achievement_id = Column(
         UUID(as_uuid=True), ForeignKey("achievements.id"), nullable=False

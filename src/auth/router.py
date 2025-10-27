@@ -16,7 +16,6 @@ def login(
     db: Session = Depends(get_db)
 ):
     """Login do usuário e retorno do token JWT"""
-    # Validação para campos vazios - retorna 422
     if not form_data.username or not form_data.password:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
@@ -26,13 +25,11 @@ def login(
     repo = UserRepository()
     user = repo.get_user_by_username(db, form_data.username)
 
-    # Credenciais inválidas - retorna 401
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nome de usuário ou senha incorretos",
         )
 
-    # Criar token JWT
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}

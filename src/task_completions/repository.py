@@ -17,7 +17,6 @@ class TaskCompletionRepository:
             Difficulty.MEDIUM: 20,
             Difficulty.HARD: 30,
         }
-        # Cast the difficulty to the enum type to fix mypy issue
         difficulty_value = Difficulty(task.difficulty)
         return xp_values.get(difficulty_value, 10)
 

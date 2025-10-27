@@ -4,8 +4,6 @@ from datetime import datetime
 from typing import Optional
 from .model import AchievementKey
 
-
-# Schema para a *definição* da conquista
 class AchievementResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
@@ -17,9 +15,8 @@ class AchievementResponse(BaseModel):
     requirement_key: AchievementKey
 
 
-# Schema para a *conquista desbloqueada* pelo usuário (US#18)
 class UserAchievementResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
     unlocked_at: datetime
-    achievement: AchievementResponse  # Aninha os detalhes da conquista
+    achievement: AchievementResponse 

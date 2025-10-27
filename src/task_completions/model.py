@@ -12,6 +12,5 @@ class TaskCompletion(Base):
     task_id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), nullable=False)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
 
-    # Atributos do UML
     completed_date = Column(DateTime, default=datetime.utcnow)
     xp_earned = Column(Integer, default=0)

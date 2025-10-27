@@ -21,7 +21,6 @@ class TestTaskCompletionRepository:
         """US#5 - Teste unitário: cálculo de XP por dificuldade"""
         repo = TaskCompletionRepository()
 
-        # Criar um objeto Task mock para o teste
         from unittest.mock import Mock
 
         task = Mock()
@@ -36,7 +35,6 @@ class TestTaskCompletionRepository:
         """US#11 - Teste unitário: completar hábito aumenta streak"""
         repo = TaskCompletionRepository()
 
-        # Criar hábito
         habit = Habit(
             title="Test Streak Habit",
             difficulty=Difficulty.EASY,
@@ -46,7 +44,6 @@ class TestTaskCompletionRepository:
         db_session.add(habit)
         db_session.commit()
 
-        # Completar hábito - retorna tupla
         completion, updated_user, streak_updated, new_streak = repo.complete_task(
             db_session, habit.id, test_user.id
         )
@@ -54,7 +51,6 @@ class TestTaskCompletionRepository:
         assert completion is not None
         assert completion.xp_earned == 10
 
-        # Verificar streak
         db_session.refresh(habit)
         assert habit.current_streak == 1
         assert streak_updated == True
@@ -66,14 +62,12 @@ class TestTaskCompletionRepository:
         """US#4 - Teste unitário: completar ToDo marca como concluído"""
         repo = TaskCompletionRepository()
 
-        # Criar ToDo
         todo = ToDo(
             title="Test ToDo", difficulty=Difficulty.MEDIUM, user_id=test_user.id
         )
         db_session.add(todo)
         db_session.commit()
 
-        # Completar ToDo - retorna tupla
         completion, updated_user, streak_updated, new_streak = repo.complete_task(
             db_session, todo.id, test_user.id
         )
@@ -81,7 +75,6 @@ class TestTaskCompletionRepository:
         assert completion is not None
         assert completion.xp_earned == 20
 
-        # Verificar se foi marcado como concluído
         db_session.refresh(todo)
         assert todo.completed == True
 
@@ -97,7 +90,6 @@ class TestTaskCompletionEndpoints:
         test_user: User,
     ):
         """US#3, US#5 - Teste de integração: completar hábito via endpoint"""
-        # Criar hábito
         habit = Habit(
             title="API Test Habit",
             difficulty=Difficulty.EASY,
@@ -107,7 +99,6 @@ class TestTaskCompletionEndpoints:
         db_session.add(habit)
         db_session.commit()
 
-        # Completar via API
         response = client.post(
             f"/api/v1/tasks/{habit.id}/complete", headers=auth_headers
         )
@@ -115,7 +106,7 @@ class TestTaskCompletionEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
-        assert data["user"]["xp"] == 10  # XP inicial + 10 do hábito EASY
+        assert data["user"]["xp"] == 10  
 
     def test_complete_todo_endpoint(
         self,
@@ -125,14 +116,12 @@ class TestTaskCompletionEndpoints:
         test_user: User,
     ):
         """US#4, US#5 - Teste de integração: completar ToDo via endpoint"""
-        # Criar ToDo
         todo = ToDo(
             title="API Test ToDo", difficulty=Difficulty.HARD, user_id=test_user.id
         )
         db_session.add(todo)
         db_session.commit()
 
-        # Completar via API
         response = client.post(
             f"/api/v1/tasks/{todo.id}/complete", headers=auth_headers
         )
@@ -140,7 +129,7 @@ class TestTaskCompletionEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
-        assert data["user"]["xp"] == 30  # XP inicial + 30 do ToDo HARD
+        assert data["user"]["xp"] == 30 
 
 
 class TestGamificationFlow:
@@ -150,7 +139,6 @@ class TestGamificationFlow:
         self, client: TestClient, auth_headers: dict
     ):
         """US#5 - Fluxo: Múltiplas conclusões acumulam XP"""
-        # Criar primeiro hábito
         habit1_response = client.post(
             "/api/v1/tasks/habits/",
             json={"title": "Habit 1", "difficulty": "EASY", "frequency_type": "DAILY"},
@@ -158,7 +146,6 @@ class TestGamificationFlow:
         )
         habit1_id = habit1_response.json()["id"]
 
-        # Criar segundo hábito
         habit2_response = client.post(
             "/api/v1/tasks/habits/",
             json={
@@ -170,14 +157,12 @@ class TestGamificationFlow:
         )
         habit2_id = habit2_response.json()["id"]
 
-        # Completar primeiro hábito (10 XP)
         complete1_response = client.post(
             f"/api/v1/tasks/{habit1_id}/complete", headers=auth_headers
         )
         assert complete1_response.status_code == 200
         assert complete1_response.json()["user"]["xp"] == 10
 
-        # Completar segundo hábito (20 XP adicional = 30 total)
         complete2_response = client.post(
             f"/api/v1/tasks/{habit2_id}/complete", headers=auth_headers
         )
@@ -200,7 +185,6 @@ def test_xp_calculation_all_combinations(
     task_type: str, difficulty: str, expected_xp: int
 ):
     """US#5 - Testes parametrizados: cálculo de XP para todas as combinações"""
-    # Simulação do cálculo de XP
     xp_values = {"EASY": 10, "MEDIUM": 20, "HARD": 30}
     calculated_xp = xp_values[difficulty]
 
