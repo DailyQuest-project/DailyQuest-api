@@ -41,14 +41,26 @@ class Task(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     title = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"),nullable=False)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = Column(Boolean, default=True)
+    is_active = Column(Boolean, default=True)  # Movido para a classe base
     difficulty = Column(Enum(Difficulty), nullable=False)
 
-    # Coluna "Tipo" (Discriminador) para a Herança
+    # Coluna "Tipo" (Discriminador) para a Herança de Tabela Única
     task_type = Column(String(50))
+
+    # Colunas específicas do Habit (nullable para ToDos)
+    frequency_type = Column(Enum(HabitFrequencyType), nullable=True)
+    frequency_target_times = Column(Integer, nullable=True)
+    frequency_days_of_week = Column(Integer, nullable=True)  # Bitmask
+    current_streak = Column(Integer, default=0, nullable=True)
+    last_completed = Column(DateTime, nullable=True)
+
+    # Colunas específicas do ToDo (nullable para Habits)
+    deadline = Column(DateTime, nullable=True)
+    completed = Column(Boolean, default=False, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
 
     # Relacionamento many-to-many com Tag
     tags = relationship("Tag", secondary="task_tags", back_populates="tasks")
@@ -59,33 +71,14 @@ class Task(Base):
     }
 
 
-# --- CLASSE HABIT MODIFICADA ---
+# --- CLASSE HABIT MODIFICADA PARA HERANÇA DE TABELA ÚNICA ---
 class Habit(Task):
-    __tablename__ = "habits"
-
-    id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), primary_key=True)
-    frequency_type = Column(Enum(HabitFrequencyType), nullable=False)
-
-    # Campos opcionais para frequency
-    frequency_days = Column(Integer, nullable=True)
-    frequency_weeks = Column(Integer, nullable=True)
-    frequency_target_times = Column(Integer, nullable=True)
-    frequency_days_of_week = Column(Integer, nullable=True)  # Bitmask
-
-    # Streak tracking
-    current_streak = Column(Integer, default=0)
-    last_completed = Column(DateTime, nullable=True)
-
+    # Removido __tablename__ e ForeignKey para usar Herança de Tabela Única
+    
     __mapper_args__ = {"polymorphic_identity": "habit"}
 
 
 class ToDo(Task):
-    __tablename__ = "todos"
-
-    id = Column(UUID(as_uuid=True), ForeignKey("tasks.id"), primary_key=True)
-    due_date = Column(DateTime, nullable=True)
-    deadline = Column(DateTime, nullable=True)  # Used by repository
-    completed = Column(Boolean, default=False)
-    completed_at = Column(DateTime, nullable=True)
-
+    # Removido __tablename__ e ForeignKey para usar Herança de Tabela Única
+    
     __mapper_args__ = {"polymorphic_identity": "todo"}

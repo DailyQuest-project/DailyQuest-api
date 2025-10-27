@@ -22,7 +22,7 @@ def get_tag_repository() -> TagRepo:
 
 
 # US#3 - Criar hábito
-@router.post("/habits/", response_model=schema.HabitResponse)
+@router.post("/habits/", response_model=schema.HabitResponse, status_code=status.HTTP_201_CREATED)
 def create_habit(
     habit: schema.HabitCreate,
     current_user: User = Depends(get_current_user),
@@ -33,7 +33,7 @@ def create_habit(
 
 
 # US#8 - Criar ToDo
-@router.post("/todos/", response_model=schema.ToDoResponse)
+@router.post("/todos/", response_model=schema.ToDoResponse, status_code=status.HTTP_201_CREATED)
 def create_todo(
     todo: schema.ToDoCreate,
     current_user: User = Depends(get_current_user),
