@@ -1,12 +1,17 @@
-from pydantic_settings import BaseSettings
 import os
+from dotenv import load_dotenv
 
-class Settings(BaseSettings):
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "postgresql://dailyquest:dev123@db:5432/dailyquest_db")
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "7NDRuYThWQw2xrJam1EVO4Y4F2L6mZ6G")
-    JWT_ALGORITHM: str = "HS512"
-    
-    class Config:
-        env_file = ".env"
+load_dotenv()
 
-settings = Settings()
+# JWT Configuration
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
+ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Database Configuration
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql://user:password@localhost/dailyquest"
+)
+
+# Other configurations
+DEBUG = os.getenv("DEBUG", "False").lower() == "true"
