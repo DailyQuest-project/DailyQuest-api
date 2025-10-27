@@ -4,11 +4,14 @@ FROM python:3.10-slim
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
 
-# Copiar o arquivo de dependências (que está na mesma pasta do Dockerfile)
-COPY ./requirements.txt .
+# Copia AMBOS os arquivos de dependência
+COPY requirements.txt requirements-dev.txt ./
 
-# Instalar as dependências
+# Instala as dependências PRINCIPAIS
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Instala as dependências de DESENVOLVIMENTO (linters, testes)
+RUN pip install --no-cache-dir -r requirements-dev.txt
 
 # Copiar a pasta 'src' inteira para dentro do container, na pasta de trabalho
 COPY ./src /app/src
