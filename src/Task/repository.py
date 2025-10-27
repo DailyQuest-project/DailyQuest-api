@@ -91,9 +91,14 @@ class TaskRepository:
         habit_update: schema.HabitCreate,
     ) -> Optional[model.Habit]:
         """Atualizar um hábito existente"""
+        # --- MUDANÇA: Consulte Task filtrando por tipo ---
         db_habit = (
-            db.query(model.Habit)
-            .filter(model.Habit.id == habit_id, model.Habit.user_id == user_id)
+            db.query(model.Task)
+            .filter(
+                model.Task.id == habit_id, 
+                model.Task.user_id == user_id,
+                model.Task.task_type == 'habit'  # Garante que é um hábito
+            )
             .first()
         )
 
@@ -123,18 +128,23 @@ class TaskRepository:
 
     def delete_habit(self, db: Session, habit_id: UUID, user_id: UUID) -> bool:
         """Deletar um hábito"""
+        # --- MUDANÇA: Consulte Task filtrando por tipo ---
         db_habit = (
-            db.query(model.Habit)
-            .filter(model.Habit.id == habit_id, model.Habit.user_id == user_id)
+            db.query(model.Task)
+            .filter(
+                model.Task.id == habit_id, 
+                model.Task.user_id == user_id,
+                model.Task.task_type == 'habit'  # Garante que é um hábito
+            )
             .first()
         )
 
         if db_habit:
             db.delete(db_habit)
             db.commit()
-            return True
+            return True  # RETORNA TRUE quando deleta com sucesso
 
-        return False
+        return False  # RETORNA FALSE quando não encontra
 
     # --- FUNÇÃO 1: Associar Tag ---
     def add_tag_to_task(self, db: Session, task: model.Task, tag: Tag) -> model.Task:

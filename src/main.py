@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from .seed import seed_database
 from src.users.router import router as users_router
 from src.auth.router import router as auth_router
 from src.Task.router import router as tasks_router
@@ -42,10 +43,17 @@ tags_metadata = [
 async def lifespan(app: FastAPI):
     """Gerencia o ciclo de vida da aplicação"""
     # Startup
+    print("API iniciando... Aguardando banco de dados...")
     wait_for_db()
+    print("Criando tabelas...")
     create_tables()
+    print("Rodando o seed do banco de dados...")
+    # Chama a função de seed aqui
+    seed_database() 
+    print("Seeding concluído (ou dados já existiam). API pronta.")
     yield
     # Shutdown (se necessário no futuro)
+    print("API desligando...")
 
 
 app = FastAPI(
