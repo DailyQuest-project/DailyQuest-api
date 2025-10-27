@@ -3,36 +3,36 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-
 from ..deps import get_db
 from ..users.repository import UserRepository
-from ..security import verify_password, create_access_token
+from ..security import create_access_token, verify_password
 
-router = APIRouter(
-    prefix="/auth",
-    tags=["Auth"]
-)
+router = APIRouter(prefix="/auth", tags=["Auth"])
+
 
 @router.post("/login")
-async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: Session = Depends(get_db),
-    repo: UserRepository = Depends()
+def login(
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(get_db)
 ):
-    # 1. Busca o usuário pelo username (que vem no form_data.username)
-    user = repo.get_user_by_username(db, username=form_data.username)
+    """Login do usuário e retorno do token JWT"""
+    # Validação para campos vazios - retorna 422
+    if not form_data.username or not form_data.password:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+            detail="Username and password are required",
+        )
 
-    # 2. Verifica se o usuário existe e se a senha está correta
+    repo = UserRepository()
+    user = repo.get_user_by_username(db, form_data.username)
+
+    # Credenciais inválidas - retorna 401
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Nome de usuário ou senha incorretos",
-            headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # 3. Cria o token JWT. O "sub" (subject) é o username.
-    access_token_data = {"sub": user.username}
-    access_token = create_access_token(data=access_token_data)
-
-    # 4. Retorna o token
+    # Criar token JWT
+    access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
