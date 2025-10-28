@@ -41,7 +41,7 @@ class DashboardRepository:
             .filter(Habit.user_id == user.id, Habit.is_active == True)
             .scalar()
             or 0
-        )  
+        )
 
         return {
             "total_xp": user.xp,

@@ -10,13 +10,18 @@ from ..tags.repository import TagRepository as TagRepo
 
 router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
+
 def get_task_repository() -> TaskRepository:
     return TaskRepository()
+
 
 def get_tag_repository() -> TagRepo:
     return TagRepo()
 
-@router.post("/habits/", response_model=schema.HabitResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/habits/", response_model=schema.HabitResponse, status_code=status.HTTP_201_CREATED
+)
 def create_habit(
     habit: schema.HabitCreate,
     current_user: User = Depends(get_current_user),
@@ -25,7 +30,10 @@ def create_habit(
 ) -> schema.HabitResponse:
     return repo.create_habit(db=db, habit=habit, user_id=current_user.id)
 
-@router.post("/todos/", response_model=schema.ToDoResponse, status_code=status.HTTP_201_CREATED)
+
+@router.post(
+    "/todos/", response_model=schema.ToDoResponse, status_code=status.HTTP_201_CREATED
+)
 def create_todo(
     todo: schema.ToDoCreate,
     current_user: User = Depends(get_current_user),
@@ -34,6 +42,7 @@ def create_todo(
 ) -> schema.ToDoResponse:
     return repo.create_todo(db=db, todo=todo, user_id=current_user.id)
 
+
 @router.get("/", response_model=List[schema.TaskResponse])
 def get_user_tasks(
     current_user: User = Depends(get_current_user),
@@ -41,6 +50,7 @@ def get_user_tasks(
     repo: TaskRepository = Depends(get_task_repository),
 ) -> List[schema.TaskResponse]:
     return repo.get_tasks_by_user(db=db, user_id=current_user.id)
+
 
 @router.put("/habits/{habit_id}", response_model=schema.HabitResponse)
 def update_habit(
@@ -61,6 +71,7 @@ def update_habit(
 
     return updated_habit
 
+
 @router.delete("/habits/{habit_id}")
 def delete_habit(
     habit_id: UUID,
@@ -76,6 +87,7 @@ def delete_habit(
         )
 
     return {"message": "Habit deleted successfully"}
+
 
 @router.post("/{task_id}/tags/{tag_id}", response_model=schema.TaskResponse)
 def add_tag_to_task_endpoint(
@@ -97,6 +109,7 @@ def add_tag_to_task_endpoint(
 
     return task_repo.add_tag_to_task(db, task, tag)
 
+
 @router.delete("/{task_id}/tags/{tag_id}", response_model=schema.TaskResponse)
 def remove_tag_from_task_endpoint(
     task_id: UUID,
@@ -116,6 +129,7 @@ def remove_tag_from_task_endpoint(
         raise HTTPException(status_code=404, detail="Tag not found")
 
     return task_repo.remove_tag_from_task(db, task, tag)
+
 
 @router.get("/by-tag/{tag_id}", response_model=List[schema.TaskResponse])
 def get_tasks_by_tag_endpoint(

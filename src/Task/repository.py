@@ -3,7 +3,8 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import datetime
 from . import model, schema
-from ..tags.model import Tag 
+from ..tags.model import Tag
+
 
 def _convert_days_list_to_bitmask(days: List[int]) -> int:
     """Converte uma lista de dias [0, 4] para um bitmask (17)."""
@@ -92,9 +93,9 @@ class TaskRepository:
         db_habit = (
             db.query(model.Task)
             .filter(
-                model.Task.id == habit_id, 
+                model.Task.id == habit_id,
                 model.Task.user_id == user_id,
-                model.Task.task_type == 'habit' 
+                model.Task.task_type == "habit",
             )
             .first()
         )
@@ -127,9 +128,9 @@ class TaskRepository:
         db_habit = (
             db.query(model.Task)
             .filter(
-                model.Task.id == habit_id, 
+                model.Task.id == habit_id,
                 model.Task.user_id == user_id,
-                model.Task.task_type == 'habit' 
+                model.Task.task_type == "habit",
             )
             .first()
         )
@@ -137,9 +138,9 @@ class TaskRepository:
         if db_habit:
             db.delete(db_habit)
             db.commit()
-            return True 
+            return True
 
-        return False 
+        return False
 
     def add_tag_to_task(self, db: Session, task: model.Task, tag: Tag) -> model.Task:
         """Associa uma tag a uma tarefa."""
@@ -169,7 +170,7 @@ class TaskRepository:
             db.query(model.Task)
             .filter(
                 model.Task.user_id == user_id,
-                model.Task.tags.any(id=tag_id), 
+                model.Task.tags.any(id=tag_id),
             )
             .all()
         )

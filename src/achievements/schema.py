@@ -4,9 +4,10 @@ from datetime import datetime
 from typing import Optional
 from .model import AchievementKey
 
+
 class AchievementResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: UUID
     name: str
     description: str
@@ -17,6 +18,6 @@ class AchievementResponse(BaseModel):
 
 class UserAchievementResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     unlocked_at: datetime
-    achievement: AchievementResponse 
+    achievement: AchievementResponse

@@ -106,7 +106,7 @@ class TestTaskCompletionEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
-        assert data["user"]["xp"] == 10  
+        assert data["user"]["xp"] == 10
 
     def test_complete_todo_endpoint(
         self,
@@ -129,7 +129,7 @@ class TestTaskCompletionEndpoints:
         assert response.status_code == 200
         data = response.json()
         assert "message" in data
-        assert data["user"]["xp"] == 30 
+        assert data["user"]["xp"] == 30
 
 
 class TestGamificationFlow:

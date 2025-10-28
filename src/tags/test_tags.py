@@ -12,6 +12,7 @@ class TestTagRepository:
     def test_create_tag_success(self, db_session: Session, test_user: User):
         """US#7 - Teste unitário: criar tag"""
         repo = TagRepository()
+
         class MockTagCreate:
             name = "Work"
             color = "#FF0000"

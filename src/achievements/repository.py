@@ -21,9 +21,7 @@ class AchievementRepository:
         return (
             db.query(UserAchievement)
             .filter(UserAchievement.user_id == user_id)
-            .options(
-                joinedload(UserAchievement.achievement) 
-            )
+            .options(joinedload(UserAchievement.achievement))
             .order_by(UserAchievement.unlocked_at.desc())
             .all()
         )
@@ -56,7 +54,7 @@ class AchievementRepository:
         Verifica antes para não duplicar.
         """
         if not achievement:
-            return 
+            return
 
         # Get achievement ID as UUID value
         achievement_id = getattr(achievement, "id")
@@ -67,9 +65,7 @@ class AchievementRepository:
         if not has_achievement:
             new_unlock = UserAchievement(user_id=user_id, achievement_id=achievement_id)
             db.add(new_unlock)
-            print(
-                f"--- CONQUISTA DESBLOQUEADA: {achievement.name} ---"
-            )  
+            print(f"--- CONQUISTA DESBLOQUEADA: {achievement.name} ---")
 
     def check_and_unlock_achievements(
         self, db: Session, user: User, completed_task: Task

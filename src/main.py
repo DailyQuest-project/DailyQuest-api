@@ -47,7 +47,7 @@ async def lifespan(app: FastAPI):
     print("Criando tabelas...")
     create_tables()
     print("Rodando o seed do banco de dados...")
-    seed_database() 
+    seed_database()
     print("Seeding concluído (ou dados já existiam). API pronta.")
     yield
     print("API desligando...")

@@ -12,8 +12,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 @router.post("/login")
 def login(
-    form_data: OAuth2PasswordRequestForm = Depends(), 
-    db: Session = Depends(get_db)
+    form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)
 ):
     """Login do usuário e retorno do token JWT"""
     if not form_data.username or not form_data.password:

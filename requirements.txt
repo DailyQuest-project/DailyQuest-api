@@ -15,3 +15,4 @@ pytest-mock
 httpx
 python-jose[cryptography]
 python-multipart
+pylint

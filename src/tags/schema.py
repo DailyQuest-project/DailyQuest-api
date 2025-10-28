@@ -19,7 +19,7 @@ class TagCreate(TagBase):
 
 class TagResponse(TagBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: UUID
     user_id: UUID
 

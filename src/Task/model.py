@@ -19,6 +19,7 @@ from ..database import Base
 if TYPE_CHECKING:
     from sqlalchemy.sql.schema import Column as ColumnType
 
+
 class Difficulty(str, PyEnum):
     EASY = "EASY"
     MEDIUM = "MEDIUM"
@@ -26,9 +27,9 @@ class Difficulty(str, PyEnum):
 
 
 class HabitFrequencyType(str, PyEnum):
-    DAILY = "DAILY" 
-    WEEKLY_TIMES = "WEEKLY_TIMES" 
-    SPECIFIC_DAYS = "SPECIFIC_DAYS" 
+    DAILY = "DAILY"
+    WEEKLY_TIMES = "WEEKLY_TIMES"
+    SPECIFIC_DAYS = "SPECIFIC_DAYS"
 
 
 class Task(Base):
@@ -40,7 +41,7 @@ class Task(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    is_active = Column(Boolean, default=True) 
+    is_active = Column(Boolean, default=True)
     difficulty = Column(Enum(Difficulty), nullable=False)
 
     task_type = Column(String(50))
@@ -64,9 +65,10 @@ class Task(Base):
         "polymorphic_on": task_type,
     }
 
-class Habit(Task):    
+
+class Habit(Task):
     __mapper_args__ = {"polymorphic_identity": "habit"}
 
 
-class ToDo(Task):    
+class ToDo(Task):
     __mapper_args__ = {"polymorphic_identity": "todo"}

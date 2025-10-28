@@ -105,6 +105,7 @@ class TestTaskRepository:
     def test_create_habit_success(self, db_session: Session, test_user: User):
         """US#3 - Teste unitário: criar hábito"""
         repo = TaskRepository()
+
         class MockHabitCreate:
             title = "Test Habit"
             description = "Test description"
@@ -123,6 +124,7 @@ class TestTaskRepository:
     def test_create_todo_success(self, db_session: Session, test_user: User):
         """US#8 - Teste unitário: criar todo"""
         repo = TaskRepository()
+
         class MockTodoCreate:
             title = "Test Todo"
             description = "Test todo description"

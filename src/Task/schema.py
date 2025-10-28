@@ -20,9 +20,7 @@ class HabitCreate(BaseModel):
 
     frequency_type: HabitFrequencyType = HabitFrequencyType.DAILY
 
-    frequency_target_times: Optional[int] = Field(
-        None, gt=0, lt=8
-    ) 
+    frequency_target_times: Optional[int] = Field(None, gt=0, lt=8)
 
     # Lista de dias da semana (0=Segunda, 6=Domingo) - apenas para SPECIFIC_DAYS
     frequency_days: Optional[List[int]] = Field(None, max_length=7)
@@ -30,10 +28,10 @@ class HabitCreate(BaseModel):
 
 class HabitResponse(TaskBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: UUID
     user_id: UUID
-    task_type: str = "habit" 
+    task_type: str = "habit"
     current_streak: int = 0
     best_streak: int = 0
     last_completed_at: Optional[datetime] = None
@@ -57,19 +55,21 @@ class HabitResponse(TaskBase):
                 days.append(i)
         return days
 
+
 class ToDoCreate(TaskBase):
     deadline: Optional[date] = None
 
 
 class ToDoResponse(TaskBase):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: UUID
     user_id: UUID
-    task_type: str = "todo"  
+    task_type: str = "todo"
     deadline: Optional[date] = None
-    completed: bool = False  
+    completed: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None
+
 
 TaskResponse = Union[HabitResponse, ToDoResponse]

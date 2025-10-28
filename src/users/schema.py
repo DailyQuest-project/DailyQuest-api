@@ -2,6 +2,7 @@ from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 from typing import Optional, Any
 import uuid
 
+
 class UserCreate(BaseModel):
     username: str
     email: EmailStr
@@ -24,7 +25,7 @@ class UserCreate(BaseModel):
 
 class User(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    
+
     id: uuid.UUID
     username: str
     email: EmailStr

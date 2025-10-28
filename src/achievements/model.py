@@ -11,6 +11,8 @@ from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..users.model import User
+
+
 class AchievementKey(str, PyEnum):
     LEVEL_5 = "LEVEL_5"
     LEVEL_10 = "LEVEL_10"
@@ -18,6 +20,7 @@ class AchievementKey(str, PyEnum):
     FIRST_TODO = "FIRST_TODO"
     STREAK_3 = "STREAK_3_DAYS"
     STREAK_7 = "STREAK_7_DAYS"
+
 
 class Achievement(Base):
     __tablename__ = "achievements"
@@ -28,6 +31,7 @@ class Achievement(Base):
     icon = Column(String(10), nullable=False)
     category = Column(String(50), nullable=False)
     requirement_key = Column(Enum(AchievementKey), nullable=False)
+
 
 class UserAchievement(Base):
     __tablename__ = "user_achievements"

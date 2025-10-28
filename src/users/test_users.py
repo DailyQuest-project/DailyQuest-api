@@ -132,7 +132,7 @@ class TestUserAPI:
     def test_get_user_me_unauthorized(self, client: TestClient):
         """Testa se a rota /me é protegida sem token"""
         response = client.get("/api/v1/users/me")
-        assert response.status_code == 401  
+        assert response.status_code == 401
 
 
 class TestUserEndpoints:

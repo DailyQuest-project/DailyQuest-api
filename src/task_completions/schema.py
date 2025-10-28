@@ -8,12 +8,12 @@ from ..users.schema import User
 class TaskCompletionCreate(BaseModel):
     """Schema para criar um TaskCompletion"""
 
-    pass 
+    pass
 
 
 class TaskCompletionResponse(BaseModel):
     """Schema para resposta de TaskCompletion"""
-    
+
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
