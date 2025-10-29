@@ -86,9 +86,9 @@ def seed_database() -> None:
             if not exists:
                 new_ach = Achievement(**ach_data)
                 db.add(new_ach)
-                print(f"  ✅ Criando conquista: {ach_data['name']} {ach_data['icon']}")
+                print(f"  Criando conquista: {ach_data['name']} {ach_data['icon']}")
             else:
-                print(f"  ⏭️  Conquista já existe: {ach_data['name']}")
+                print(f"  Conquista já existe: {ach_data['name']}")
 
         db.commit()
         print(" Seeding concluído com sucesso!")
