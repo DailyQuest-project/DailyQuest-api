@@ -72,7 +72,16 @@ class HabitResponse(TaskBase):
 class ToDoCreate(TaskBase):
     """Schema for creating new todos with optional deadlines."""
 
-    deadline: Optional[date] = None
+    deadline: Optional[datetime] = None
+
+
+class ToDoUpdate(BaseModel):
+    """Schema for updating todos: all fields optional."""
+
+    title: Optional[str] = None
+    description: Optional[str] = None
+    difficulty: Optional[Difficulty] = None
+    deadline: Optional[datetime] = None
 
 
 class ToDoResponse(TaskBase):
@@ -83,7 +92,8 @@ class ToDoResponse(TaskBase):
     id: UUID
     user_id: UUID
     task_type: str = "todo"
-    deadline: Optional[date] = None
+
+    deadline: Optional[datetime] = None
     completed: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None

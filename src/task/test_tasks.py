@@ -147,6 +147,42 @@ class TestTaskRepository:
         assert todo.user_id == test_user.id
         assert todo.completed is False
 
+    def test_update_todo(
+        self, db_session: Session, test_user: User, test_todo: ToDo
+    ):
+        """US#8 - Teste unitário: atualizar todo"""
+        repo = TaskRepository()
+
+        update_data = {
+            "title": "Updated Todo",
+            "description": "Updated description",
+            "difficulty": Difficulty.MEDIUM,
+        }
+
+        # Use schema ToDoUpdate
+        from src.task.schema import ToDoUpdate
+
+        todo_update = ToDoUpdate(**update_data)
+
+        updated = repo.update_todo(db_session, test_todo.id, test_user.id, todo_update)
+
+        assert updated is not None
+        assert updated.title == "Updated Todo"
+        assert updated.difficulty == Difficulty.MEDIUM
+
+    def test_delete_todo(
+        self, db_session: Session, test_user: User, test_todo: ToDo
+    ):
+        """US#8 - Teste unitário: deletar todo"""
+        repo = TaskRepository()
+        result = repo.delete_todo(db_session, test_todo.id, test_user.id)
+
+        assert result is True
+
+        # Verificar se foi realmente deletada
+        deleted_todo = repo.get_task_by_id(db_session, test_todo.id, test_user.id)
+        assert deleted_todo is None
+
     def test_get_tasks_by_user(
         self, db_session: Session, test_user: User, test_habit: Habit, test_todo: ToDo
     ):

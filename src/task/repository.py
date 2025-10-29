@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session
 
 from . import model, schema
 from ..tags.model import Tag
+from ..task_completions.model import TaskCompletion
 
 
 def _convert_days_list_to_bitmask(days: List[int]) -> int:
@@ -145,6 +146,10 @@ class TaskRepository:
         )
 
         if db_habit:
+            db.query(TaskCompletion).filter(TaskCompletion.task_id == habit_id).delete(
+                synchronize_session=False
+            )
+
             db.delete(db_habit)
             db.commit()
             return True
@@ -183,3 +188,58 @@ class TaskRepository:
             )
             .all()
         )
+
+    def update_todo(
+        self, db: Session, todo_id: UUID, user_id: UUID, todo_update: "schema.ToDoUpdate"
+    ) -> Optional[model.ToDo]:
+        """Atualizar um ToDo existente"""
+        db_todo = (
+            db.query(model.Task)
+            .filter(
+                model.Task.id == todo_id,
+                model.Task.user_id == user_id,
+                model.Task.task_type == "todo",
+            )
+            .first()
+        )
+
+        if db_todo:
+            # Atualiza apenas campos fornecidos
+            if todo_update.title is not None:
+                db_todo.title = todo_update.title
+            if todo_update.description is not None:
+                db_todo.description = todo_update.description
+            if todo_update.difficulty is not None:
+                db_todo.difficulty = todo_update.difficulty
+            if getattr(todo_update, "deadline", None) is not None:
+                db_todo.deadline = todo_update.deadline
+
+            db_todo.updated_at = datetime.utcnow()
+            db.commit()
+            db.refresh(db_todo)
+
+        return db_todo
+
+    def delete_todo(self, db: Session, todo_id: UUID, user_id: UUID) -> bool:
+        """Deletar um ToDo"""
+        db_todo = (
+            db.query(model.Task)
+            .filter(
+                model.Task.id == todo_id,
+                model.Task.user_id == user_id,
+                model.Task.task_type == "todo",
+            )
+            .first()
+        )
+
+        if db_todo:
+            # Remover completions relacionadas antes de apagar a task
+            db.query(TaskCompletion).filter(TaskCompletion.task_id == todo_id).delete(
+                synchronize_session=False
+            )
+
+            db.delete(db_todo)
+            db.commit()
+            return True
+
+        return False

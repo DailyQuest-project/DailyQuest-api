@@ -91,6 +91,39 @@ def update_habit(
     return updated_habit
 
 
+@router.put("/todos/{todo_id}", response_model=schema.ToDoResponse)
+def update_todo(
+    todo_id: UUID,
+    todo_update: schema.ToDoUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    repo: TaskRepository = Depends(get_task_repository),
+) -> schema.ToDoResponse:
+    """Update an existing ToDo for the authenticated user."""
+    updated_todo = repo.update_todo(db=db, todo_id=todo_id, user_id=current_user.id, todo_update=todo_update)
+
+    if not updated_todo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found")
+
+    return updated_todo
+
+
+@router.delete("/todos/{todo_id}")
+def delete_todo(
+    todo_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    repo: TaskRepository = Depends(get_task_repository),
+) -> Dict[str, str]:
+    """Delete a ToDo for the authenticated user."""
+    deleted = repo.delete_todo(db=db, todo_id=todo_id, user_id=current_user.id)
+
+    if not deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found")
+
+    return {"message": "ToDo deleted successfully"}
+
+
 @router.delete("/habits/{habit_id}")
 def delete_habit(
     habit_id: UUID,
