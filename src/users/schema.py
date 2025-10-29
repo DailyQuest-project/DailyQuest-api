@@ -3,6 +3,7 @@
 This module defines the data validation schemas for user-related
 operations including user creation and API responses.
 """
+
 from typing import Optional
 import uuid
 
@@ -11,6 +12,7 @@ from pydantic import BaseModel, EmailStr, field_validator, ConfigDict
 
 class UserCreate(BaseModel):
     """Schema for creating new users with validation."""
+
     username: str
     email: EmailStr
     password: str
@@ -34,6 +36,7 @@ class UserCreate(BaseModel):
 
 class User(BaseModel):
     """Schema for user API responses including all user fields."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID

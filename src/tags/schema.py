@@ -3,6 +3,7 @@
 This module defines the data validation schemas for tag-related
 operations including creation, updates, and API responses.
 """
+
 from typing import Optional
 from uuid import UUID
 
@@ -11,6 +12,7 @@ from pydantic import BaseModel, field_validator, ConfigDict
 
 class TagBase(BaseModel):
     """Base schema for tag data with common fields."""
+
     name: str
     color: Optional[str] = None
 
@@ -29,6 +31,7 @@ class TagCreate(TagBase):
 
 class TagResponse(TagBase):
     """Schema for tag API responses including database fields."""
+
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
@@ -37,5 +40,6 @@ class TagResponse(TagBase):
 
 class TagUpdate(BaseModel):
     """Schema for updating existing tags with optional fields."""
+
     name: Optional[str] = None
     color: Optional[str] = None

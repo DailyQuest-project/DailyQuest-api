@@ -3,6 +3,7 @@
 This module defines the User model with authentication fields,
 progress tracking (XP, level, coins), and user preferences.
 """
+
 import uuid
 from typing import Any
 
@@ -14,10 +15,11 @@ from ..database import Base
 
 class User(Base):
     """User model for storing user account information and progress.
-    
+
     Handles user authentication, XP/level progression, coins,
     and user interface preferences like theme and avatar.
     """
+
     __tablename__ = "users"
 
     def __init__(self, **kwargs: Any) -> None:

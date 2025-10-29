@@ -3,11 +3,13 @@
 This module contains unit and integration tests for tag management
 including CRUD operations, validation, and complete workflow testing.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.tags.repository import TagRepository
 from src.tags.model import Tag
+from src.tags.schema import TagCreate, TagUpdate
 from src.users.model import User
 
 
@@ -18,19 +20,16 @@ class TestTagRepository:
         """US#7 - Teste unitário: criar tag"""
         repo = TagRepository()
 
-        class MockTagCreate:
-            """Mock class for tag creation data."""
-            name = "Work"
-            color = "#FF0000"
+        tag_schema = TagCreate(name="Work", color="#FF0000")
 
-        tag = repo.create_tag(db_session, MockTagCreate(), test_user.id)
+        tag = repo.create_tag(db_session, tag_schema, test_user.id)
 
         assert tag.name == "Work"
         assert tag.color == "#FF0000"
         assert tag.user_id == test_user.id
 
     def test_get_tags_by_user(
-        self, db_session: Session, test_user: User, _: Tag
+        self, db_session: Session, test_user: User, test_tag: Tag
     ):
         """US#7 - Teste unitário: listar tags do usuário"""
         repo = TagRepository()
@@ -44,14 +43,10 @@ class TestTagRepository:
         """US#7 - Teste unitário: atualizar tag"""
         repo = TagRepository()
 
-        # Mock do schema de update
-        class MockTagUpdate:
-            """Mock class for tag update data."""
-            name = "Updated Tag"
-            color = "#00FF00"
+        update_schema = TagUpdate(name="Updated Tag", color="#00FF00")
 
         updated_tag = repo.update_tag(
-            db_session, test_tag.id, test_user.id, MockTagUpdate()
+            db_session, test_tag.id, test_user.id, update_schema
         )
 
         assert updated_tag.name == "Updated Tag"

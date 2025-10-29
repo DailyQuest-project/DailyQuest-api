@@ -3,6 +3,7 @@
 This module provides REST API endpoints for achievement management
 including listing user achievements and checking unlock status.
 """
+
 from typing import List
 
 from fastapi import APIRouter, Depends

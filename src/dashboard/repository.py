@@ -3,6 +3,7 @@
 This module provides data access methods for dashboard analytics,
 completion history, and user statistics.
 """
+
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -36,9 +37,7 @@ class DashboardRepository:
         """
         # 1. Total de tarefas completadas
         total_completions = (
-            db.query(TaskCompletion)
-            .filter(TaskCompletion.user_id == user.id)
-            .count()
+            db.query(TaskCompletion).filter(TaskCompletion.user_id == user.id).count()
         )
 
         # 2. Maior streak ativa

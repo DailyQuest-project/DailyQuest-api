@@ -3,6 +3,7 @@
 This module provides dependency injection functions for database sessions,
 user authentication, and JWT token validation.
 """
+
 from typing import Generator, Optional
 
 from fastapi import Depends, HTTPException, status
@@ -20,7 +21,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 def get_db() -> Generator[Session, None, None]:
     """Provide database session with proper cleanup.
-    
+
     Yields:
         Session: SQLAlchemy database session
     """
@@ -35,14 +36,14 @@ async def get_current_user(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
     """Get current authenticated user from JWT token.
-    
+
     Args:
         token: JWT access token from Authorization header
         db: Database session
-        
+
     Returns:
         User: Authenticated user object
-        
+
     Raises:
         HTTPException: If token is invalid or user not found
     """

@@ -1,8 +1,9 @@
 """Task completion router for REST API endpoints in DailyQuest API.
 
 This module provides REST API endpoints for task completion management
-including task check-in and completion tracking with XP and streak updates.
+using the TaskService layer for business logic orchestration.
 """
+
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -10,62 +11,74 @@ from sqlalchemy.orm import Session
 
 from ..deps import get_db, get_current_user
 from ..users.model import User
+from ..task.service import TaskService, TaskAlreadyCompletedError, TaskNotFoundError
+from ..task.repository import TaskRepository
+from ..users.repository import UserRepository
+from ..achievements.repository import AchievementRepository
 from . import schema
 from .repository import TaskCompletionRepository
 
 router = APIRouter(prefix="/tasks", tags=["Task Completions"])
 
 
-def get_task_completion_repository() -> TaskCompletionRepository:
-    """Dependency to provide TaskCompletionRepository instance."""
-    return TaskCompletionRepository()
+def get_task_service() -> TaskService:
+    """Dependency to provide TaskService instance with all required repositories."""
+    return TaskService(
+        task_repo=TaskRepository(),
+        completion_repo=TaskCompletionRepository(),
+        user_repo=UserRepository(),
+        achievement_repo=AchievementRepository(),
+    )
 
 
-# US#4 - Endpoint de Check-in (o mais complexo)
+# US#4 - Endpoint de Check-in (refatorado para usar TaskService)
 @router.post("/{task_id}/complete", response_model=schema.CheckInResponse)
 def complete_task(
     task_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    repo: TaskCompletionRepository = Depends(get_task_completion_repository),
+    service: TaskService = Depends(get_task_service),
 ) -> schema.CheckInResponse:
     """
     Endpoint de check-in para completar tarefas (US#4)
 
-    Este endpoint:
-    - Verifica se a tarefa pertence ao usuário atual
-    - Calcula o XP ganho baseado na dificuldade (US#5, US#11)
-    - Cria um novo TaskCompletion no banco com o XP
-    - Atualiza o User com o novo XP
-    - Se for Habit, atualiza o current_streak (US#14)
-    - Se for ToDo, marca como completado
-    - Retorna o usuário atualizado e status da tarefa
+    Este endpoint agora delega toda a lógica de negócio complexa para o TaskService,
+    mantendo apenas a responsabilidade de:
+    - Autenticação e autorização
+    - Conversão de exceções de negócio para HTTP responses
+    - Serialização da resposta
     """
     try:
-        # Unpack the tuple returned by complete_task
-        task_completion, updated_user, streak_updated, new_streak = repo.complete_task(
-            db=db, task_id=task_id, user_id=UUID(str(current_user.id))
+        # Inject database session into the service
+        service.set_db_session(db)
+
+        # Delegate all business logic to the service layer
+        completion_result = service.complete_task(
+            task_id=task_id, user_id=current_user.id
         )
 
+        # Convert service response to API response schema
         return schema.CheckInResponse(
-            message=f"Task completed! XP earned: {task_completion.xp_earned}.",
-            task_completion=task_completion,
-            user=updated_user,
-            streak_updated=streak_updated,
-            new_streak=new_streak,
+            message=completion_result["message"],
+            task_completion=completion_result["task_completion"],
+            user=completion_result["user"],
+            streak_updated=completion_result["streak_updated"],
+            new_streak=completion_result["new_streak"],
         )
 
-    except ValueError as e:
-        if str(e) == "Task not found":
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Task not found or does not belong to current user",
-            ) from e
-        if str(e) == "Task already completed today":
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Task has already been completed today",
-            ) from e
+    except TaskNotFoundError as e:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except TaskAlreadyCompletedError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        ) from e
+    except Exception as e:
+        # Catch-all for unexpected errors
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="An unexpected error occurred while completing the task",
         ) from e

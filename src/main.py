@@ -3,6 +3,7 @@
 This module contains the FastAPI application setup, router configuration,
 and application lifecycle management.
 """
+
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI

@@ -3,6 +3,7 @@
 This module provides database connection setup, session management,
 and utility functions for database operations using SQLAlchemy.
 """
+
 import os
 import time
 from typing import Generator
@@ -45,10 +46,10 @@ def create_tables() -> None:
 
 def get_db() -> Generator[Session, None, None]:
     """Get database session with proper cleanup and error handling.
-    
+
     Yields:
         Session: SQLAlchemy database session
-        
+
     Raises:
         Exception: If database connection fails
     """

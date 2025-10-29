@@ -21,10 +21,7 @@ class TestTaskCompletionRepository:
         """US#5 - Teste unitário: cálculo de XP por dificuldade"""
         repo = TaskCompletionRepository()
 
-        from unittest.mock import Mock
-
-        task = Mock()
-        task.difficulty = difficulty
+        task = Habit(difficulty=difficulty)
 
         xp = repo.calculate_xp_for_task(task)
         assert xp == expected_xp
@@ -53,7 +50,7 @@ class TestTaskCompletionRepository:
 
         db_session.refresh(habit)
         assert habit.current_streak == 1
-        assert streak_updated == True
+        assert streak_updated is True
         assert new_streak == 1
 
     def test_complete_todo_marks_as_completed(
@@ -76,7 +73,7 @@ class TestTaskCompletionRepository:
         assert completion.xp_earned == 20
 
         db_session.refresh(todo)
-        assert todo.completed == True
+        assert todo.completed is True
 
 
 class TestTaskCompletionEndpoints:

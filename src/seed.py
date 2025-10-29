@@ -3,6 +3,7 @@
 This module provides functionality to seed the database with initial data,
 particularly achievements data that are required for the application to function.
 """
+
 import sys
 import os
 from typing import Dict, Any, List
@@ -66,7 +67,7 @@ ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
 
 def seed_database() -> None:
     """Seed the database with initial achievements data.
-    
+
     Creates default achievements in the database if they don't already exist.
     This function is idempotent - it can be safely run multiple times.
     """

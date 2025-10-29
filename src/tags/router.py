@@ -3,6 +3,7 @@
 This module provides REST API endpoints for tag management
 including creation, retrieval, updates, and deletion.
 """
+
 from typing import List
 from uuid import UUID
 

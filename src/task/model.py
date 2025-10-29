@@ -3,6 +3,7 @@
 This module defines the Task base model and its subclasses (Habit and ToDo)
 using SQLAlchemy polymorphism for task management functionality.
 """
+
 import uuid
 from datetime import datetime
 from enum import Enum as PyEnum
@@ -29,6 +30,7 @@ if TYPE_CHECKING:
 
 class Difficulty(str, PyEnum):
     """Enumeration for task difficulty levels."""
+
     EASY = "EASY"
     MEDIUM = "MEDIUM"
     HARD = "HARD"
@@ -36,6 +38,7 @@ class Difficulty(str, PyEnum):
 
 class HabitFrequencyType(str, PyEnum):
     """Enumeration for habit frequency types."""
+
     DAILY = "DAILY"
     WEEKLY_TIMES = "WEEKLY_TIMES"
     SPECIFIC_DAYS = "SPECIFIC_DAYS"
@@ -43,10 +46,11 @@ class HabitFrequencyType(str, PyEnum):
 
 class Task(Base):
     """Base model for tasks including habits and todos.
-    
+
     Uses SQLAlchemy polymorphism to handle different task types
     (habits and todos) in a single table with type-specific columns.
     """
+
     __tablename__ = "tasks"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
@@ -82,9 +86,11 @@ class Task(Base):
 
 class Habit(Task):
     """Habit model for recurring tasks with streaks and frequency settings."""
+
     __mapper_args__ = {"polymorphic_identity": "habit"}
 
 
 class ToDo(Task):
     """ToDo model for one-time tasks with deadlines and completion status."""
+
     __mapper_args__ = {"polymorphic_identity": "todo"}

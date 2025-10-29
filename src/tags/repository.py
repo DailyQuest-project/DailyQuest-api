@@ -3,6 +3,7 @@
 This module provides repository pattern implementation for tag-related
 database operations including CRUD functionality.
 """
+
 from typing import List, Optional
 from uuid import UUID
 
@@ -14,7 +15,7 @@ from .schema import TagCreate, TagUpdate
 
 class TagRepository:
     """Repository class for tag database operations.
-    
+
     Provides methods for creating, reading, updating, and deleting
     tags with proper user isolation.
     """

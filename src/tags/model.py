@@ -3,6 +3,7 @@
 This module defines the Tag model and its relationship with tasks
 for categorizing and organizing user tasks.
 """
+
 import uuid
 from sqlalchemy import Column, String, ForeignKey, Table
 from sqlalchemy.dialects.postgresql import UUID
@@ -19,10 +20,11 @@ task_tag_association = Table(
 
 class Tag(Base):
     """Tag model for categorizing and organizing tasks.
-    
+
     Tags allow users to organize their tasks by categories, projects,
     or any custom classification system they prefer.
     """
+
     __tablename__ = "tags"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

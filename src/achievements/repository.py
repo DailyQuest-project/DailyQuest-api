@@ -3,6 +3,7 @@
 This module provides data access methods for achievement management
 including checking conditions, unlocking achievements, and listing user achievements.
 """
+
 from typing import Optional
 from uuid import UUID
 

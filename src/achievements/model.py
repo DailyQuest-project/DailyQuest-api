@@ -3,6 +3,7 @@
 This module defines the Achievement and UserAchievement models for tracking
 user progress and unlocking rewards based on various criteria.
 """
+
 import uuid
 from datetime import datetime
 from enum import Enum as PyEnum
@@ -21,6 +22,7 @@ if TYPE_CHECKING:
 
 class AchievementKey(str, PyEnum):
     """Enumeration of achievement requirement keys for unlocking conditions."""
+
     LEVEL_5 = "LEVEL_5"
     LEVEL_10 = "LEVEL_10"
     FIRST_HABIT = "FIRST_HABIT"
@@ -31,10 +33,11 @@ class AchievementKey(str, PyEnum):
 
 class Achievement(Base):
     """Achievement model for defining unlockable rewards and milestones.
-    
+
     Stores achievement definitions including name, description, icon,
     category, and the requirement key that determines unlock conditions.
     """
+
     __tablename__ = "achievements"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -47,10 +50,11 @@ class Achievement(Base):
 
 class UserAchievement(Base):
     """UserAchievement model for tracking unlocked achievements per user.
-    
+
     Links users to their unlocked achievements with timestamps,
     creating a many-to-many relationship between users and achievements.
     """
+
     __tablename__ = "user_achievements"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)

@@ -3,11 +3,13 @@
 This module contains unit and integration tests for user management
 including user creation, authentication, and profile operations.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.users.repository import UserRepository
 from src.users.model import User
+from src.users.schema import UserCreate
 from src.utils import hash_password, verify_password
 
 
@@ -41,20 +43,12 @@ class TestUserRepository:
     def test_create_user_success(self, db_session: Session):
         """US#1 - Teste unitário: criar usuário com dados válidos"""
         repo = UserRepository()
-        user_data = {
-            "username": "newuser",
-            "email": "newuser@test.com",
-            "password": "password123",
-        }
 
-        # Mock do schema
-        class MockUserCreate:
-            """Mock class for user creation data."""
-            username = user_data["username"]
-            email = user_data["email"]
-            password = user_data["password"]
+        user_schema = UserCreate(
+            username="newuser", email="newuser@test.com", password="password123"
+        )
 
-        user = repo.create_user(db_session, MockUserCreate())
+        user = repo.create_user(db_session, user_schema)
 
         assert (
             user.username == "newuser"
@@ -157,9 +151,7 @@ class TestUserEndpoints:
 
         response = client.post("/api/v1/users/", json=user_data)
 
-        assert (
-            response.status_code == 201
-        ), (
+        assert response.status_code == 201, (
             f"Expected status 201, got {response.status_code}. "
             f"Response: {response.text}"
         )
@@ -186,9 +178,7 @@ class TestUserEndpoints:
 
         response = client.post("/api/v1/users/", json=user_data)
 
-        assert (
-            response.status_code == 400
-        ), (
+        assert response.status_code == 400, (
             f"Expected status 400 for duplicate email, got {response.status_code}. "
             f"Response: {response.text}"
         )
@@ -217,9 +207,7 @@ class TestUserEndpoints:
         """Teste de integração: acesso sem autenticação"""
         response = client.get("/api/v1/users/me")
 
-        assert (
-            response.status_code == 401
-        ), (
+        assert response.status_code == 401, (
             f"Expected status 401 for unauthorized access, got {response.status_code}. "
             f"Response: {response.text}"
         )

@@ -3,6 +3,7 @@
 This module loads environment variables and provides configuration settings
 for the application including JWT settings, database configuration, and debug options.
 """
+
 import os
 from dotenv import load_dotenv
 

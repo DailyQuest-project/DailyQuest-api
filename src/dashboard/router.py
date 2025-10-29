@@ -3,6 +3,7 @@
 This module provides REST API endpoints for dashboard analytics
 including completion history and user statistics.
 """
+
 from typing import List
 
 from fastapi import APIRouter, Depends

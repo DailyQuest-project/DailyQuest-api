@@ -3,6 +3,7 @@
 This module provides data access methods for task completion management
 including XP calculation, streak tracking, and achievement integration.
 """
+
 from datetime import datetime, timedelta
 from uuid import UUID
 

@@ -3,11 +3,13 @@
 This module contains unit and integration tests for task management
 including habits and todos CRUD operations, validation, and tag integration.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.task.repository import TaskRepository
 from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
+from src.task.schema import HabitCreate, ToDoCreate
 from src.users.model import User
 from src.tags.model import Tag
 
@@ -111,16 +113,16 @@ class TestTaskRepository:
         """US#3 - Teste unitário: criar hábito"""
         repo = TaskRepository()
 
-        class MockHabitCreate:
-            """Mock class for habit creation data."""
-            title = "Test Habit"
-            description = "Test description"
-            difficulty = Difficulty.MEDIUM
-            frequency_type = HabitFrequencyType.DAILY
-            frequency_target_times = None
-            frequency_days = None
+        habit_schema = HabitCreate(
+            title="Test Habit",
+            description="Test description",
+            difficulty=Difficulty.MEDIUM,
+            frequency_type=HabitFrequencyType.DAILY,
+            frequency_target_times=None,
+            frequency_days=None,
+        )
 
-        habit = repo.create_habit(db_session, MockHabitCreate(), test_user.id)
+        habit = repo.create_habit(db_session, habit_schema, test_user.id)
 
         assert habit.title == "Test Habit"
         assert habit.difficulty == Difficulty.MEDIUM
@@ -131,14 +133,14 @@ class TestTaskRepository:
         """US#8 - Teste unitário: criar todo"""
         repo = TaskRepository()
 
-        class MockTodoCreate:
-            """Mock class for todo creation data."""
-            title = "Test Todo"
-            description = "Test todo description"
-            difficulty = Difficulty.HARD
-            deadline = None
+        todo_schema = ToDoCreate(
+            title="Test Todo",
+            description="Test todo description",
+            difficulty=Difficulty.HARD,
+            deadline=None,
+        )
 
-        todo = repo.create_todo(db_session, MockTodoCreate(), test_user.id)
+        todo = repo.create_todo(db_session, todo_schema, test_user.id)
 
         assert todo.title == "Test Todo"
         assert todo.difficulty == Difficulty.HARD
@@ -146,7 +148,7 @@ class TestTaskRepository:
         assert todo.completed is False
 
     def test_get_tasks_by_user(
-        self, db_session: Session, test_user: User, _test_habit: Habit, _test_todo: ToDo
+        self, db_session: Session, test_user: User, test_habit: Habit, test_todo: ToDo
     ):
         """US#6 - Teste unitário: listar tarefas do usuário"""
         repo = TaskRepository()
@@ -163,17 +165,17 @@ class TestTaskRepository:
         """US#10 - Teste unitário: atualizar hábito"""
         repo = TaskRepository()
 
-        class MockHabitUpdate:
-            """Mock class for habit update data."""
-            title = "Updated Habit"
-            description = "Updated description"
-            difficulty = Difficulty.HARD
-            frequency_type = HabitFrequencyType.WEEKLY_TIMES
-            frequency_target_times = 3
-            frequency_days = None
+        update_schema = HabitCreate(
+            title="Updated Habit",
+            description="Updated description",
+            difficulty=Difficulty.HARD,
+            frequency_type=HabitFrequencyType.WEEKLY_TIMES,
+            frequency_target_times=3,
+            frequency_days=None,
+        )
 
         updated_habit = repo.update_habit(
-            db_session, test_habit.id, test_user.id, MockHabitUpdate()
+            db_session, test_habit.id, test_user.id, update_schema
         )
 
         assert updated_habit.title == "Updated Habit"
@@ -236,7 +238,7 @@ class TestTaskEndpoints:
         assert data["completed"] is False
 
     def test_get_user_tasks(
-        self, client: TestClient, auth_headers: dict, _: Habit, __: ToDo
+        self, client: TestClient, auth_headers: dict, test_habit: Habit, test_todo: ToDo
     ):
         """US#6 - Teste de integração: GET /tasks/"""
         response = client.get("/api/v1/tasks/", headers=auth_headers)

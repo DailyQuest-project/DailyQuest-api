@@ -3,6 +3,8 @@
 This module provides data access methods for user management
 including user creation, authentication, and user lookup operations.
 """
+
+from uuid import UUID
 from sqlalchemy.orm import Session
 from . import model, schema
 from ..utils import hash_password
@@ -10,6 +12,10 @@ from ..utils import hash_password
 
 class UserRepository:
     """Repository for user-related database operations."""
+
+    def get_user_by_id(self, db: Session, user_id: UUID):
+        """Get user by ID."""
+        return db.query(model.User).filter(model.User.id == user_id).first()
 
     def get_user_by_email(self, db: Session, email: str):
         """Get user by email address."""

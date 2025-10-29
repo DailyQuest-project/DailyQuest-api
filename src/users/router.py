@@ -3,6 +3,7 @@
 This module provides REST API endpoints for user management
 including user registration and profile retrieval.
 """
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from . import schema

@@ -3,6 +3,7 @@
 This module contains integration tests for user authentication,
 login functionality, and token-based access control.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from src.users.model import User
@@ -11,7 +12,7 @@ from src.users.model import User
 class TestAuthEndpoints:
     """Testes de integração para autenticação"""
 
-    def test_login_success(self, client: TestClient, _: User):
+    def test_login_success(self, client: TestClient, test_user: User):
         """US#2 - Teste de integração: login com credenciais válidas"""
         response = client.post(
             "/api/v1/auth/login",
@@ -34,7 +35,7 @@ class TestAuthEndpoints:
         assert response.status_code == 401
         assert "Nome de usuário ou senha incorretos" in response.json()["detail"]
 
-    def test_login_invalid_password(self, client: TestClient, _: User):
+    def test_login_invalid_password(self, client: TestClient, test_user: User):
         """US#2 - Teste: login com senha incorreta"""
         response = client.post(
             "/api/v1/auth/login",
@@ -63,7 +64,7 @@ class TestAuthEndpoints:
 )
 def test_login_parametrized(
     client: TestClient,
-    _: User,
+    test_user: User,
     username: str,
     password: str,
     expected_status: int,
@@ -79,7 +80,7 @@ def test_login_parametrized(
 class TestAuthFlow:
     """Testes de fluxo de autenticação"""
 
-    def test_token_access_flow(self, client: TestClient, _: User):
+    def test_token_access_flow(self, client: TestClient, test_user: User):
         """US#2 - Fluxo completo: Login → Usar token → Acessar recurso protegido"""
         # 1. Login
         login_response = client.post(

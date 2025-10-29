@@ -3,6 +3,7 @@
 This module contains unit and integration tests for achievement management
 including unlocking achievements and checking user progress.
 """
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -33,9 +34,7 @@ class TestAchievementRepository:
         repo = AchievementRepository()
 
         # Call the function without assigning since it returns None
-        repo.unlock_achievement_for_user(
-            db_session, test_user.id, test_achievement
-        )
+        repo.unlock_achievement_for_user(db_session, test_user.id, test_achievement)
 
         # Verificar se foi criado
         db_session.commit()
