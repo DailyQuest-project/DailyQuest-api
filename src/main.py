@@ -1,15 +1,21 @@
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+"""Main application module for DailyQuest API.
+
+This module contains the FastAPI application setup, router configuration,
+and application lifecycle management.
+"""
 from contextlib import asynccontextmanager
-from .seed import seed_database
+
+from fastapi import FastAPI
+
+from src.database import create_tables, wait_for_db
 from src.users.router import router as users_router
 from src.auth.router import router as auth_router
-from src.Task.router import router as tasks_router
+from src.task.router import router as tasks_router
 from src.tags.router import router as tags_router
 from src.task_completions.router import router as task_completions_router
 from src.achievements.router import router as achievements_router
 from src.dashboard.router import router as dashboard_router
-from src.database import create_tables, wait_for_db
+from .seed import seed_database
 
 tags_metadata = [
     {
@@ -40,7 +46,7 @@ tags_metadata = [
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(_: FastAPI):
     """Gerencia o ciclo de vida da aplicação"""
     print("API iniciando... Aguardando banco de dados...")
     wait_for_db()
@@ -72,9 +78,11 @@ app.include_router(achievements_router, prefix="/api/v1")
 
 @app.get("/")
 async def root():
+    """Root endpoint that returns API status."""
     return {"message": "DailyQuest API is running!"}
 
 
 @app.get("/health")
 async def health_check():
+    """Health check endpoint for monitoring API availability."""
     return {"status": "healthy"}

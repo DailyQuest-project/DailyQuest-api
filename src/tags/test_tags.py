@@ -1,3 +1,8 @@
+"""Tag functionality tests for DailyQuest API.
+
+This module contains unit and integration tests for tag management
+including CRUD operations, validation, and complete workflow testing.
+"""
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -14,6 +19,7 @@ class TestTagRepository:
         repo = TagRepository()
 
         class MockTagCreate:
+            """Mock class for tag creation data."""
             name = "Work"
             color = "#FF0000"
 
@@ -24,7 +30,7 @@ class TestTagRepository:
         assert tag.user_id == test_user.id
 
     def test_get_tags_by_user(
-        self, db_session: Session, test_user: User, test_tag: Tag
+        self, db_session: Session, test_user: User, _: Tag
     ):
         """US#7 - Teste unitário: listar tags do usuário"""
         repo = TagRepository()
@@ -40,6 +46,7 @@ class TestTagRepository:
 
         # Mock do schema de update
         class MockTagUpdate:
+            """Mock class for tag update data."""
             name = "Updated Tag"
             color = "#00FF00"
 

@@ -1,4 +1,8 @@
-# Em: src/test_users.py
+"""User functionality tests for DailyQuest API.
+
+This module contains unit and integration tests for user management
+including user creation, authentication, and profile operations.
+"""
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -9,6 +13,8 @@ from src.utils import hash_password, verify_password
 
 # --- Testes Unitários  ---
 class TestUserModel:
+    """Unit tests for User model creation and defaults."""
+
     def test_user_creation_basic(self):
         """Testa a criação do modelo User"""
         user = User(
@@ -30,7 +36,7 @@ class TestUserModel:
 
 
 class TestUserRepository:
-    """Testes unitários para UserRepository"""
+    """Unit tests for UserRepository database operations."""
 
     def test_create_user_success(self, db_session: Session):
         """US#1 - Teste unitário: criar usuário com dados válidos"""
@@ -43,6 +49,7 @@ class TestUserRepository:
 
         # Mock do schema
         class MockUserCreate:
+            """Mock class for user creation data."""
             username = user_data["username"]
             email = user_data["email"]
             password = user_data["password"]
@@ -92,6 +99,8 @@ class TestUserRepository:
 
 # --- Testes de Integração ---
 class TestUserAPI:
+    """Integration tests for user API endpoints."""
+
     def test_create_user_success(self, client: TestClient):
         """Testa a criação de usuário com sucesso (US#1)"""
         response = client.post(
@@ -136,7 +145,7 @@ class TestUserAPI:
 
 
 class TestUserEndpoints:
-    """Testes de integração para endpoints de usuários"""
+    """Integration tests for user REST API endpoints."""
 
     def test_create_user_endpoint_success(self, client: TestClient):
         """US#1 - Teste de integração: POST /users/ com dados válidos"""
@@ -150,7 +159,10 @@ class TestUserEndpoints:
 
         assert (
             response.status_code == 201
-        ), f"Expected status 201, got {response.status_code}. Response: {response.text}"
+        ), (
+            f"Expected status 201, got {response.status_code}. "
+            f"Response: {response.text}"
+        )
         data = response.json()
         assert (
             data["username"] == user_data["username"]
@@ -176,7 +188,10 @@ class TestUserEndpoints:
 
         assert (
             response.status_code == 400
-        ), f"Expected status 400 for duplicate email, got {response.status_code}. Response: {response.text}"
+        ), (
+            f"Expected status 400 for duplicate email, got {response.status_code}. "
+            f"Response: {response.text}"
+        )
         error_detail = response.json()["detail"]
         assert (
             "already registered" in error_detail
@@ -204,7 +219,10 @@ class TestUserEndpoints:
 
         assert (
             response.status_code == 401
-        ), f"Expected status 401 for unauthorized access, got {response.status_code}. Response: {response.text}"
+        ), (
+            f"Expected status 401 for unauthorized access, got {response.status_code}. "
+            f"Response: {response.text}"
+        )
 
 
 @pytest.mark.parametrize(
@@ -230,7 +248,7 @@ def test_create_user_validation(
 
 
 class TestUserIntegrationFlow:
-    """Testes de fluxo completo de usuário"""
+    """Complete workflow tests for user registration and authentication."""
 
     def test_complete_user_registration_and_login_flow(self, client: TestClient):
         """US#1, US#2 - Fluxo completo: Cadastro → Login → Acesso autenticado"""

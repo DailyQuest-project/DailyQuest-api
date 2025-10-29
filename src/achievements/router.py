@@ -1,7 +1,12 @@
-# Em: src/achievements/router.py
+"""Achievement router for REST API endpoints in DailyQuest API.
+
+This module provides REST API endpoints for achievement management
+including listing user achievements and checking unlock status.
+"""
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List
 
 from ..deps import get_db, get_current_user
 from ..users.model import User
@@ -12,6 +17,7 @@ router = APIRouter(prefix="/achievements", tags=["Achievements"])
 
 
 def get_achievement_repository():
+    """Dependency to provide AchievementRepository instance."""
     return AchievementRepository()
 
 

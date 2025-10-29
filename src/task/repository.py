@@ -1,7 +1,14 @@
-from sqlalchemy.orm import Session
+"""Task repository for database operations in DailyQuest API.
+
+This module provides data access methods for task management
+including habits and todos CRUD operations.
+"""
+from datetime import datetime
 from typing import List, Optional
 from uuid import UUID
-from datetime import datetime
+
+from sqlalchemy.orm import Session
+
 from . import model, schema
 from ..tags.model import Tag
 
@@ -25,11 +32,12 @@ def _convert_bitmask_to_days_list(bitmask: int) -> List[int]:
 
 
 class TaskRepository:
+    """Repository for task-related database operations."""
 
     def create_habit(
         self, db: Session, habit: schema.HabitCreate, user_id: UUID
     ) -> model.Habit:
-
+        """Create a new habit for a user."""
         bitmask_days = None
         if (
             habit.frequency_type == model.HabitFrequencyType.SPECIFIC_DAYS

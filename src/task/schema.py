@@ -1,19 +1,27 @@
-# Em: src/tasks/schema.py
-from pydantic import BaseModel, Field, computed_field, ConfigDict
-from typing import Optional, List, Union
+"""Pydantic schemas for task data validation in DailyQuest API.
+
+This module defines the data validation schemas for task-related
+operations including habits and todos creation, updates, and API responses.
+"""
 from datetime import datetime, date
+from typing import Optional, List, Union
 from uuid import UUID
+
+from pydantic import BaseModel, Field, computed_field, ConfigDict
+
 from .model import HabitFrequencyType, Difficulty
 
 
 # Base schemas
 class TaskBase(BaseModel):
+    """Base schema for task data with common fields."""
     title: str
     description: Optional[str] = None
     difficulty: Difficulty = Difficulty.EASY
 
 
 class HabitCreate(BaseModel):
+    """Schema for creating new habits with frequency settings."""
     title: str
     description: Optional[str] = None
     difficulty: Difficulty = Difficulty.EASY
@@ -27,6 +35,7 @@ class HabitCreate(BaseModel):
 
 
 class HabitResponse(TaskBase):
+    """Schema for habit API responses including computed fields."""
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
@@ -57,10 +66,12 @@ class HabitResponse(TaskBase):
 
 
 class ToDoCreate(TaskBase):
+    """Schema for creating new todos with optional deadlines."""
     deadline: Optional[date] = None
 
 
 class ToDoResponse(TaskBase):
+    """Schema for todo API responses including completion status."""
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID

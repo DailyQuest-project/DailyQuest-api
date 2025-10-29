@@ -1,16 +1,22 @@
-# Em: src/conftest.py
-import pytest
+"""Test configuration and fixtures for DailyQuest API tests.
+
+This module provides pytest fixtures for database sessions, test clients,
+authentication, and test data creation for comprehensive API testing.
+"""
 import os
+
+import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+
 from src.main import app
 from src.database import get_db, Base
 from src.users.model import User
 from src.achievements.model import Achievement, AchievementKey
 from src.tags.model import Tag
-from src.Task.model import Habit, ToDo
+from src.task.model import Habit, ToDo
 from src.utils import hash_password
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///:memory:")
@@ -25,7 +31,7 @@ elif SQLALCHEMY_DATABASE_URL.startswith("postgresql"):
     engine_args = {}
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL, **engine_args)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TESTING_SESSIONLOCAL = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 @pytest.fixture(scope="function")
@@ -33,7 +39,7 @@ def db_session():
     """Fixture que cria uma sessão de banco de dados para cada teste."""
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
-    session = TestingSessionLocal()
+    session = TESTING_SESSIONLOCAL()
     try:
         yield session
     finally:
@@ -42,12 +48,12 @@ def db_session():
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
+def client(session):
     """Fixture que cria um cliente de teste do FastAPI."""
 
     def override_get_db():
         try:
-            yield db_session
+            yield session
         finally:
             pass
 
@@ -58,7 +64,7 @@ def client(db_session):
 
 
 @pytest.fixture
-def test_user(db_session):
+def test_user(session):
     """Fixture que cria um usuário de teste."""
     user = User(
         username="testuser",
@@ -68,16 +74,16 @@ def test_user(db_session):
         level=1,
         coins=0,
     )
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
     return user
 
 
 @pytest.fixture
-def auth_headers(client, test_user):
+def auth_headers(test_client, _):
     """Fixture que cria headers de autenticação."""
-    response = client.post(
+    response = test_client.post(
         "/api/v1/auth/login", data={"username": "testuser", "password": "testpass123"}
     )
     assert response.status_code == 200, f"Login failed: {response.text}"
@@ -86,23 +92,23 @@ def auth_headers(client, test_user):
 
 
 @pytest.fixture
-def auth_client(client, test_user):
+def auth_client(test_client, _):
     """
     Fixture que retorna um cliente já autenticado.
     Útil para testes que precisam de autenticação sem configurar manualmente.
     """
-    response = client.post(
+    response = test_client.post(
         "/api/v1/auth/login", data={"username": "testuser", "password": "testpass123"}
     )
     assert response.status_code == 200, f"Login failed: {response.text}"
 
     token = response.json()["access_token"]
-    client.headers.update({"Authorization": f"Bearer {token}"})
-    return client
+    test_client.headers.update({"Authorization": f"Bearer {token}"})
+    return test_client
 
 
 @pytest.fixture
-def test_achievement(db_session):
+def test_achievement(session):
     """Fixture que cria uma conquista de teste."""
     achievement = Achievement(
         name="Test Achievement",
@@ -111,14 +117,14 @@ def test_achievement(db_session):
         category="Test",
         requirement_key=AchievementKey.FIRST_HABIT,
     )
-    db_session.add(achievement)
-    db_session.commit()
-    db_session.refresh(achievement)
+    session.add(achievement)
+    session.commit()
+    session.refresh(achievement)
     return achievement
 
 
 @pytest.fixture
-def seeded_achievements(db_session):
+def seeded_achievements(session):
     """Fixture que cria todas as conquistas padrão do sistema."""
     achievements_data = [
         {"name": "Nível 5", "requirement_key": AchievementKey.LEVEL_5},
@@ -138,49 +144,49 @@ def seeded_achievements(db_session):
             category="Test",
             requirement_key=data["requirement_key"],
         )
-        db_session.add(achievement)
+        session.add(achievement)
         achievements.append(achievement)
 
-    db_session.commit()
+    session.commit()
     return achievements
 
 
 @pytest.fixture
-def test_tag(db_session, test_user):
+def test_tag(session, user):
     """Fixture que cria uma tag de teste."""
-    tag = Tag(name="Test Tag", color="#FF0000", user_id=test_user.id)
-    db_session.add(tag)
-    db_session.commit()
-    db_session.refresh(tag)
+    tag = Tag(name="Test Tag", color="#FF0000", user_id=user.id)
+    session.add(tag)
+    session.commit()
+    session.refresh(tag)
     return tag
 
 
 @pytest.fixture
-def test_habit(db_session, test_user):
+def test_habit(session, user):
     """Fixture que cria um hábito de teste."""
     habit = Habit(
         title="Test Habit",
         description="Test habit description",
-        user_id=test_user.id,
+        user_id=user.id,
         difficulty="EASY",
         frequency_type="DAILY",
     )
-    db_session.add(habit)
-    db_session.commit()
-    db_session.refresh(habit)
+    session.add(habit)
+    session.commit()
+    session.refresh(habit)
     return habit
 
 
 @pytest.fixture
-def test_todo(db_session, test_user):
+def test_todo(session, user):
     """Fixture que cria um todo de teste."""
     todo = ToDo(
         title="Test Todo",
         description="Test todo description",
-        user_id=test_user.id,
+        user_id=user.id,
         difficulty="MEDIUM",
     )
-    db_session.add(todo)
-    db_session.commit()
-    db_session.refresh(todo)
+    session.add(todo)
+    session.commit()
+    session.refresh(todo)
     return todo

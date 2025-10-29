@@ -1,5 +1,8 @@
-# Em: src/users/router.py
+"""User router for CRUD operations in DailyQuest API.
 
+This module provides REST API endpoints for user management
+including user registration and profile retrieval.
+"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from . import schema
@@ -16,6 +19,7 @@ def create_user(
     db: Session = Depends(get_db),
     repo: UserRepository = Depends(),
 ) -> schema.User:
+    """Register a new user account."""
     db_user = repo.get_user_by_email(db, email=user.email)
     if db_user:
         raise HTTPException(
@@ -28,4 +32,5 @@ def create_user(
 async def read_users_me(
     current_user: UserModel = Depends(get_current_user),
 ) -> UserModel:
+    """Get the current authenticated user's profile."""
     return current_user

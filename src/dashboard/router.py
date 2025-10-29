@@ -1,7 +1,12 @@
-# Em: src/dashboard/router.py
+"""Dashboard router for analytics and statistics endpoints in DailyQuest API.
+
+This module provides REST API endpoints for dashboard analytics
+including completion history and user statistics.
+"""
+from typing import List
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from typing import List
 
 from ..deps import get_db, get_current_user
 from ..users.model import User
@@ -12,6 +17,7 @@ router = APIRouter(prefix="/dashboard", tags=["Dashboard & History"])
 
 
 def get_dashboard_repository():
+    """Dependency to provide DashboardRepository instance."""
     return DashboardRepository()
 
 

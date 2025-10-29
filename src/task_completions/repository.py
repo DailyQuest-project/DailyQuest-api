@@ -1,14 +1,21 @@
-from sqlalchemy.orm import Session
-from sqlalchemy import func
+"""Task completion repository for database operations in DailyQuest API.
+
+This module provides data access methods for task completion management
+including XP calculation, streak tracking, and achievement integration.
+"""
 from datetime import datetime, timedelta
 from uuid import UUID
+
+from sqlalchemy.orm import Session
+
 from .model import TaskCompletion
-from ..Task.model import Task, Habit, ToDo, Difficulty
+from ..task.model import Task, Habit, ToDo, Difficulty
 from ..users.model import User
 from ..achievements.repository import AchievementRepository
 
 
 class TaskCompletionRepository:
+    """Repository for task completion-related database operations and business logic."""
 
     def _calculate_xp_earned(self, task: Task) -> int:
         """Calcula XP baseado na dificuldade da tarefa."""

@@ -1,13 +1,20 @@
-# Em: src/dashboard/repository.py
+"""Dashboard repository for analytics and statistics in DailyQuest API.
+
+This module provides data access methods for dashboard analytics,
+completion history, and user statistics.
+"""
+from uuid import UUID
+
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
-from uuid import UUID
+
 from ..task_completions.model import TaskCompletion
-from ..Task.model import Habit
+from ..task.model import Habit
 from ..users.model import User
 
 
 class DashboardRepository:
+    """Repository for dashboard-related database operations."""
 
     def get_completion_history(
         self, db: Session, user_id: UUID
@@ -29,16 +36,16 @@ class DashboardRepository:
         """
         # 1. Total de tarefas completadas
         total_completions = (
-            db.query(func.count(TaskCompletion.id))
+            db.query(TaskCompletion)
             .filter(TaskCompletion.user_id == user.id)
-            .scalar()
+            .count()
         )
 
         # 2. Maior streak ativa
         # Esta consulta busca o hábito ativo do usuário com a maior streak
         longest_active_streak = (
             db.query(func.max(Habit.current_streak))
-            .filter(Habit.user_id == user.id, Habit.is_active == True)
+            .filter(Habit.user_id == user.id, Habit.is_active.is_(True))
             .scalar()
             or 0
         )

@@ -1,7 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+"""Tag router for CRUD operations in DailyQuest API.
+
+This module provides REST API endpoints for tag management
+including creation, retrieval, updates, and deletion.
+"""
 from typing import List
 from uuid import UUID
+
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
+
 from ..deps import get_db, get_current_user
 from ..users.model import User
 from . import schema
@@ -11,6 +18,7 @@ router = APIRouter(prefix="/tags", tags=["Tags"])
 
 
 def get_tag_repository():
+    """Dependency to provide TagRepository instance."""
     return TagRepository()
 
 

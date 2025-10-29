@@ -1,5 +1,8 @@
-# Em: src/auth/router.py
+"""Authentication router for user login and token generation.
 
+This module provides authentication endpoints for user login
+and JWT access token generation.
+"""
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session

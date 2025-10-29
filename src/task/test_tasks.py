@@ -1,9 +1,13 @@
-# Em: src/test_tasks.py
+"""Task functionality tests for DailyQuest API.
+
+This module contains unit and integration tests for task management
+including habits and todos CRUD operations, validation, and tag integration.
+"""
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
-from src.Task.repository import TaskRepository
-from src.Task.model import Habit, ToDo, Difficulty, HabitFrequencyType
+from src.task.repository import TaskRepository
+from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
 from src.users.model import User
 from src.tags.model import Tag
 
@@ -32,6 +36,7 @@ def test_bitmask_conversion(days_list, expected_bitmask):
 
 # --- Testes de Integração ---
 class TestTaskAPI:
+    """Integration tests for task API endpoints with authentication."""
 
     @pytest.fixture(autouse=True)
     def auth_client(self, client: TestClient) -> TestClient:
@@ -100,13 +105,14 @@ class TestTaskAPI:
 
 
 class TestTaskRepository:
-    """Testes unitários para TaskRepository"""
+    """Unit tests for TaskRepository database operations."""
 
     def test_create_habit_success(self, db_session: Session, test_user: User):
         """US#3 - Teste unitário: criar hábito"""
         repo = TaskRepository()
 
         class MockHabitCreate:
+            """Mock class for habit creation data."""
             title = "Test Habit"
             description = "Test description"
             difficulty = Difficulty.MEDIUM
@@ -126,6 +132,7 @@ class TestTaskRepository:
         repo = TaskRepository()
 
         class MockTodoCreate:
+            """Mock class for todo creation data."""
             title = "Test Todo"
             description = "Test todo description"
             difficulty = Difficulty.HARD
@@ -139,7 +146,7 @@ class TestTaskRepository:
         assert todo.completed is False
 
     def test_get_tasks_by_user(
-        self, db_session: Session, test_user: User, test_habit: Habit, test_todo: ToDo
+        self, db_session: Session, test_user: User, _test_habit: Habit, _test_todo: ToDo
     ):
         """US#6 - Teste unitário: listar tarefas do usuário"""
         repo = TaskRepository()
@@ -157,6 +164,7 @@ class TestTaskRepository:
         repo = TaskRepository()
 
         class MockHabitUpdate:
+            """Mock class for habit update data."""
             title = "Updated Habit"
             description = "Updated description"
             difficulty = Difficulty.HARD
@@ -187,7 +195,7 @@ class TestTaskRepository:
 
 
 class TestTaskEndpoints:
-    """Testes de integração para endpoints de tarefas"""
+    """Integration tests for task REST API endpoints."""
 
     def test_create_habit_endpoint(self, client: TestClient, auth_headers: dict):
         """US#3 - Teste de integração: POST /tasks/habits/"""
@@ -228,7 +236,7 @@ class TestTaskEndpoints:
         assert data["completed"] is False
 
     def test_get_user_tasks(
-        self, client: TestClient, auth_headers: dict, test_habit: Habit, test_todo: ToDo
+        self, client: TestClient, auth_headers: dict, _: Habit, __: ToDo
     ):
         """US#6 - Teste de integração: GET /tasks/"""
         response = client.get("/api/v1/tasks/", headers=auth_headers)
@@ -319,7 +327,7 @@ def test_create_habit_validation(
 
 
 class TestTaskTagIntegration:
-    """Testes de integração entre tarefas e tags"""
+    """Integration tests for task and tag associations."""
 
     def test_add_tag_to_task(
         self, client: TestClient, auth_headers: dict, test_habit: Habit, test_tag: Tag
@@ -363,7 +371,7 @@ class TestTaskTagIntegration:
 
 
 class TestTaskFlow:
-    """Testes de fluxo completo de tarefas"""
+    """Complete workflow tests for task management."""
 
     def test_complete_habit_management_flow(
         self, client: TestClient, auth_headers: dict

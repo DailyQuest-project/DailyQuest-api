@@ -1,7 +1,14 @@
+"""Task router for CRUD operations in DailyQuest API.
+
+This module provides REST API endpoints for task management
+including habits and todos creation, updates, deletion, and tag associations.
+"""
+from typing import List, Dict
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
-from uuid import UUID
+
 from ..deps import get_db, get_current_user
 from ..users.model import User
 from . import schema
@@ -12,11 +19,18 @@ router = APIRouter(prefix="/tasks", tags=["Tasks"])
 
 
 def get_task_repository() -> TaskRepository:
+    """Dependency to provide TaskRepository instance."""
     return TaskRepository()
 
 
 def get_tag_repository() -> TagRepo:
+    """Dependency to provide TagRepository instance."""
     return TagRepo()
+
+
+def get_repositories() -> tuple[TaskRepository, TagRepo]:
+    """Dependency to provide both TaskRepository and TagRepository instances."""
+    return TaskRepository(), TagRepo()
 
 
 @router.post(
@@ -28,6 +42,7 @@ def create_habit(
     db: Session = Depends(get_db),
     repo: TaskRepository = Depends(get_task_repository),
 ) -> schema.HabitResponse:
+    """Create a new habit for the authenticated user."""
     return repo.create_habit(db=db, habit=habit, user_id=current_user.id)
 
 
@@ -40,6 +55,7 @@ def create_todo(
     db: Session = Depends(get_db),
     repo: TaskRepository = Depends(get_task_repository),
 ) -> schema.ToDoResponse:
+    """Create a new todo for the authenticated user."""
     return repo.create_todo(db=db, todo=todo, user_id=current_user.id)
 
 
@@ -49,6 +65,7 @@ def get_user_tasks(
     db: Session = Depends(get_db),
     repo: TaskRepository = Depends(get_task_repository),
 ) -> List[schema.TaskResponse]:
+    """Get all tasks (habits and todos) for the authenticated user."""
     return repo.get_tasks_by_user(db=db, user_id=current_user.id)
 
 
@@ -60,6 +77,7 @@ def update_habit(
     db: Session = Depends(get_db),
     repo: TaskRepository = Depends(get_task_repository),
 ) -> schema.HabitResponse:
+    """Update an existing habit for the authenticated user."""
     updated_habit = repo.update_habit(
         db=db, habit_id=habit_id, user_id=current_user.id, habit_update=habit_update
     )
@@ -79,6 +97,7 @@ def delete_habit(
     db: Session = Depends(get_db),
     repo: TaskRepository = Depends(get_task_repository),
 ) -> Dict[str, str]:
+    """Delete a habit for the authenticated user."""
     deleted = repo.delete_habit(db=db, habit_id=habit_id, user_id=current_user.id)
 
     if not deleted:
@@ -95,10 +114,10 @@ def add_tag_to_task_endpoint(
     tag_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    task_repo: TaskRepository = Depends(get_task_repository),
-    tag_repo: TagRepo = Depends(get_tag_repository),
+    repos: tuple[TaskRepository, TagRepo] = Depends(get_repositories),
 ) -> schema.TaskResponse:
-    """Associa uma tag existente a uma tarefa."""
+    """Associate an existing tag with a task."""
+    task_repo, tag_repo = repos
     task = task_repo.get_task_by_id(db, task_id, current_user.id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -116,10 +135,10 @@ def remove_tag_from_task_endpoint(
     tag_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    task_repo: TaskRepository = Depends(get_task_repository),
-    tag_repo: TagRepo = Depends(get_tag_repository),
+    repos: tuple[TaskRepository, TagRepo] = Depends(get_repositories),
 ) -> schema.TaskResponse:
-    """Desassocia uma tag de uma tarefa."""
+    """Remove a tag association from a task."""
+    task_repo, tag_repo = repos
     task = task_repo.get_task_by_id(db, task_id, current_user.id)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
@@ -136,12 +155,10 @@ def get_tasks_by_tag_endpoint(
     tag_id: UUID,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
-    task_repo: TaskRepository = Depends(get_task_repository),
-    tag_repo: TagRepo = Depends(get_tag_repository),
+    repos: tuple[TaskRepository, TagRepo] = Depends(get_repositories),
 ) -> List[schema.TaskResponse]:
-    """
-    Retorna todas as tarefas do usuário filtradas por uma tag (US#12).
-    """
+    """Get all user tasks filtered by a specific tag (US#12)."""
+    task_repo, tag_repo = repos
     tag = tag_repo.get_tag_by_id(db, tag_id, current_user.id)
     if not tag:
         raise HTTPException(status_code=404, detail="Tag not found")

@@ -1,11 +1,23 @@
-from sqlalchemy.orm import Session
+"""Tag repository for database operations in DailyQuest API.
+
+This module provides repository pattern implementation for tag-related
+database operations including CRUD functionality.
+"""
 from typing import List, Optional
 from uuid import UUID
+
+from sqlalchemy.orm import Session
+
 from .model import Tag
 from .schema import TagCreate, TagUpdate
 
 
 class TagRepository:
+    """Repository class for tag database operations.
+    
+    Provides methods for creating, reading, updating, and deleting
+    tags with proper user isolation.
+    """
 
     def create_tag(self, db: Session, tag: TagCreate, user_id: UUID) -> Tag:
         """Criar uma nova tag"""

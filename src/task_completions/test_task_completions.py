@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.task_completions.repository import TaskCompletionRepository
-from src.Task.model import Habit, ToDo, Difficulty, HabitFrequencyType
+from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
 from src.users.model import User
 
 

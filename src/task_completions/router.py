@@ -1,6 +1,13 @@
+"""Task completion router for REST API endpoints in DailyQuest API.
+
+This module provides REST API endpoints for task completion management
+including task check-in and completion tracking with XP and streak updates.
+"""
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from uuid import UUID
+
 from ..deps import get_db, get_current_user
 from ..users.model import User
 from . import schema
@@ -9,8 +16,8 @@ from .repository import TaskCompletionRepository
 router = APIRouter(prefix="/tasks", tags=["Task Completions"])
 
 
-# Dependency para o repository
 def get_task_completion_repository() -> TaskCompletionRepository:
+    """Dependency to provide TaskCompletionRepository instance."""
     return TaskCompletionRepository()
 
 
@@ -53,11 +60,12 @@ def complete_task(
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Task not found or does not belong to current user",
-            )
-        elif str(e) == "Task already completed today":
+            ) from e
+        if str(e) == "Task already completed today":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Task has already been completed today",
-            )
-        else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+            ) from e
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
+        ) from e

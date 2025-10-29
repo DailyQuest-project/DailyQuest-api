@@ -1,14 +1,20 @@
-from pydantic import BaseModel, ConfigDict
+"""Pydantic schemas for task completion data validation in DailyQuest API.
+
+This module defines the data validation schemas for task completion operations
+including completion tracking, XP calculation, and check-in responses.
+"""
 from datetime import datetime
-from uuid import UUID
 from typing import Optional
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict
+
 from ..users.schema import User
 
 
 class TaskCompletionCreate(BaseModel):
     """Schema para criar um TaskCompletion"""
-
-    pass
+    # No fields needed for creation as all data comes from the task and user context
 
 
 class TaskCompletionResponse(BaseModel):

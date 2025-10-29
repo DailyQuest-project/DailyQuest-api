@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 from src.dashboard.repository import DashboardRepository
 from src.users.model import User
-from src.Task.model import Habit
+from src.task.model import Habit
 from src.task_completions.model import TaskCompletion
 
 

@@ -1,22 +1,22 @@
-# Em: src/seed.py
+"""Database seeding module for DailyQuest API.
 
+This module provides functionality to seed the database with initial data,
+particularly achievements data that are required for the application to function.
+"""
 import sys
 import os
 from typing import Dict, Any, List
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from src.database import SessionLocal, engine, Base
-from src.achievements.model import Achievement, AchievementKey
-from src.users.model import User
-from src.utils import hash_password
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from src.config import DATABASE_URL
+from src.achievements.model import Achievement, AchievementKey
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SESSIONLOCAL = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
     {
@@ -65,8 +65,13 @@ ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
 
 
 def seed_database() -> None:
+    """Seed the database with initial achievements data.
+    
+    Creates default achievements in the database if they don't already exist.
+    This function is idempotent - it can be safely run multiple times.
+    """
     print(" Iniciando o seeding do banco de dados...")
-    db = SessionLocal()
+    db = SESSIONLOCAL()
 
     try:
         for ach_data in ACHIEVEMENTS_TO_SEED:

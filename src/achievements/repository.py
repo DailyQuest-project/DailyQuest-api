@@ -1,16 +1,21 @@
-# Em: src/achievements/repository.py
-from sqlalchemy.orm import Session
-from sqlalchemy import and_
+"""Achievement repository for database operations in DailyQuest API.
+
+This module provides data access methods for achievement management
+including checking conditions, unlocking achievements, and listing user achievements.
+"""
+from typing import Optional
+from uuid import UUID
+
+from sqlalchemy.orm import Session, joinedload
+
 from .model import UserAchievement, Achievement, AchievementKey
 from ..users.model import User
-from ..Task.model import Task, Habit, ToDo
+from ..task.model import Task, Habit, ToDo
 from ..task_completions.model import TaskCompletion
-from sqlalchemy.orm import joinedload
-from uuid import UUID
-from typing import Union, Optional
 
 
 class AchievementRepository:
+    """Repository for achievement-related database operations and unlock logic."""
 
     def list_user_achievements(
         self, db: Session, user_id: UUID
