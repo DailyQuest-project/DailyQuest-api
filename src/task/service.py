@@ -94,22 +94,38 @@ class TaskService:
         user_level_before = user.level
         user_xp_before = user.xp
 
-        # 4. Execute core completion logic
-        completion, updated_user, streak_updated, new_streak = (
-            self.completion_repo.complete_task(
-                db=self.db_session, task_id=task_id, user_id=user_id
-            )
+        # 4. Execute core completion logic (repository persists XP, streaks, completions)
+        completion, updated_user, streak_updated, new_streak = self.completion_repo.complete_task(
+            db=self.db_session, task_id=task_id, user_id=user_id
         )
 
-        # 5. Calculate level progression
-        level_up_occurred = updated_user.level > user_level_before
-        levels_gained = (
-            updated_user.level - user_level_before if level_up_occurred else 0
-        )
+        # 5. Calculate level progression using the single source of truth (service)
+        new_xp = getattr(updated_user, "xp", 0)
+        new_level = self.calculate_level_from_xp(new_xp)
+        current_level = user_level_before
+        if new_level > current_level:
+            # Persist level change
+            setattr(updated_user, "level", new_level)
+            # Commit the level update so subsequent achievement checks see it
+            self.db_session.commit()
+            self.db_session.refresh(updated_user)
+            level_up_occurred = True
+            levels_gained = new_level - current_level
+        else:
+            level_up_occurred = False
+            levels_gained = 0
 
-        # 6. Process achievements (delegated to existing achievement system)
-        # Note: AchievementRepository.check_and_unlock_achievements is already called
-        # in completion_repo.complete_task, but we could add additional achievement logic here
+        # 6. Process achievements now that user's XP/level are up-to-date
+        # Use the injected achievement repository
+        try:
+            self.achievement_repo.check_and_unlock_achievements(self.db_session, updated_user, task)
+            # Ensure unlocked achievements are persisted
+            self.db_session.commit()
+        except Exception:
+            # If achievements check fails, we don't want to break the completion flow
+            # but we also don't want to hide errors silently in production.
+            # Re-raise to let higher layers handle or log accordingly.
+            raise
 
         # 7. Prepare comprehensive response
         return self._build_completion_response(

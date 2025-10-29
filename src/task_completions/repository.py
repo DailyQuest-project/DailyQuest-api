@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from .model import TaskCompletion
 from ..task.model import Task, Habit, ToDo, Difficulty
 from ..users.model import User
-from ..achievements.repository import AchievementRepository
+ 
 
 
 class TaskCompletionRepository:
@@ -130,17 +130,12 @@ class TaskCompletionRepository:
         if isinstance(task, ToDo):
             setattr(task, "completed", True)
 
-        # 7. Verificar level up
-        new_level = (new_xp // 100) + 1
-        current_level = getattr(user, "level", 1)
-        if new_level > current_level:
-            setattr(user, "level", new_level)
+        # Note: Level progression and achievement checks are handled by the
+        # service layer to keep business rules centralized. The repository
+        # remains responsible for persisting the completion, updating XP,
+        # streaks and ToDo status.
 
-        # 8. Verificar achievements
-        achievement_repo = AchievementRepository()
-        achievement_repo.check_and_unlock_achievements(db, user, task)
-
-        # 9. Commit
+        # 9. Commit persistence of completion, xp and task updates
         db.commit()
         db.refresh(completion)
         db.refresh(user)
