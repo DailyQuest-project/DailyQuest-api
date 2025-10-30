@@ -41,6 +41,12 @@ def wait_for_db(max_retries: int = 30, delay: float = 1) -> bool:
 
 def create_tables() -> None:
     """Create database tables"""
+    from src.users.model import User
+    from src.task.model import Habit, ToDo
+    from src.tags.model import Tag
+    from src.task_completions.model import TaskCompletion
+    from src.achievements.model import Achievement, UserAchievement
+    
     Base.metadata.create_all(bind=engine)
 
 
