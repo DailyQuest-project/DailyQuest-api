@@ -5,7 +5,8 @@ authentication, and test data creation for comprehensive API testing.
 """
 
 import os
-from unittest.mock import AsyncMock, patch
+from datetime import datetime, timedelta
+from typing import Dict
 
 import pytest
 from fastapi.testclient import TestClient
@@ -19,7 +20,7 @@ from src.users.model import User
 from src.achievements.model import Achievement, AchievementKey
 from src.tags.model import Tag
 from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
-from src.security import hash_password
+from src.security import hash_password, create_access_token
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///:memory:")
 
@@ -52,6 +53,8 @@ def db_session():
 @pytest.fixture(scope="function")
 def client(db_session):
     """Fixture que cria um cliente de teste do FastAPI."""
+    # Definir variável de ambiente para usar validação local
+    os.environ["TESTING"] = "true"
 
     def override_get_db():
         try:
@@ -64,44 +67,70 @@ def client(db_session):
         yield test_client
     app.dependency_overrides.clear()
 
+    # Limpar a variável de ambiente após o teste
+    if "TESTING" in os.environ:
+        del os.environ["TESTING"]
+
 
 @pytest.fixture
-def test_user(db_session):
-    """Fixture que cria um usuário de teste."""
-    user = User(
-        username="testuser",
-        email="test@example.com",
-        password_hash=hash_password("testpass123"),
-        xp=0,
-        level=1,
-        coins=0,
+def test_user_credentials():
+    """Fixture que define as credenciais do usuário de teste."""
+    return {
+        "username": "testuser",
+        "email": "test@example.com",
+        "password": "testpass123",
+    }
+
+
+@pytest.fixture
+def test_user(db_session, test_user_credentials):
+    """Fixture que obtém o usuário de teste criado pelo seed."""
+    # Buscar o usuário de teste criado pelo seed
+    user = (
+        db_session.query(User)
+        .filter(User.username == test_user_credentials["username"])
+        .first()
     )
-    db_session.add(user)
-    db_session.commit()
-    db_session.refresh(user)
+
+    # Se não existir (caso raro), criar um novo
+    if not user:
+        user = User(
+            username=test_user_credentials["username"],
+            email=test_user_credentials["email"],
+            password_hash=hash_password(test_user_credentials["password"]),
+            xp=0,
+            level=1,
+            coins=0,
+        )
+        db_session.add(user)
+        db_session.commit()
+        db_session.refresh(user)
+
     return user
 
 
 @pytest.fixture
-def auth_headers(test_user):
-    """Fixture que cria headers de autenticação mockados."""
-    # Como não temos mais o endpoint de auth local, usamos um token mock
-    return {"Authorization": "Bearer mock_token_for_testing"}
+def real_access_token(test_user):
+    """Fixture que cria um token JWT válido para o usuário de teste."""
+    # Criar token JWT válido usando a mesma lógica da aplicação
+    access_token_expires = timedelta(minutes=30)
+    access_token = create_access_token(
+        data={"sub": test_user.username}, expires_delta=access_token_expires
+    )
+    return access_token
 
 
 @pytest.fixture
-def auth_client(client, test_user):
-    """
-    Fixture que retorna um cliente já autenticado com mock do serviço de auth.
-    """
-    # Mock da resposta do serviço de autenticação
-    mock_response = AsyncMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = {"username": test_user.username}
+def auth_headers(real_access_token):
+    """Fixture que cria headers de autenticação com token real."""
+    return {"Authorization": f"Bearer {real_access_token}"}
 
-    with patch("httpx.AsyncClient.get", return_value=mock_response):
-        client.headers.update({"Authorization": "Bearer mock_token_for_testing"})
-        return client
+
+@pytest.fixture
+def auth_client(client, auth_headers):
+    """Fixture que retorna um cliente já autenticado com token real."""
+    client.headers.update(auth_headers)
+    return client
 
 
 @pytest.fixture
