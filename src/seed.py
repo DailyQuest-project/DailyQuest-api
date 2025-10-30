@@ -1,7 +1,7 @@
 """Database seeding module for DailyQuest API.
 
 This module provides functionality to seed the database with initial data,
-particularly achievements data that are required for the application to function.
+particularly achievements data and test users required for the application to function.
 """
 
 import sys
@@ -13,6 +13,8 @@ from sqlalchemy.orm import sessionmaker
 
 from src.config import DATABASE_URL
 from src.achievements.model import Achievement, AchievementKey
+from src.users.model import User
+from src.security import hash_password
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -65,16 +67,44 @@ ACHIEVEMENTS_TO_SEED: List[Dict[str, Any]] = [
 ]
 
 
-def seed_database() -> None:
-    """Seed the database with initial achievements data.
+def seed_test_user(db) -> None:
+    """Create a test user for development and testing purposes.
 
-    Creates default achievements in the database if they don't already exist.
+    Creates a test user with known credentials that can be used in tests.
+    This function is idempotent - it can be safely run multiple times.
+    """
+    # Verificar se o usuário de teste já existe
+    existing_user = db.query(User).filter(User.username == "testuser").first()
+
+    if not existing_user:
+        print("  Criando usuário de teste...")
+        test_user = User(
+            username="testuser",
+            email="test@example.com",
+            password_hash=hash_password("testpass123"),
+            xp=0,
+            level=1,
+            coins=0,
+            theme="light",
+        )
+        db.add(test_user)
+        db.commit()
+        print("  ✅ Usuário de teste criado: testuser")
+    else:
+        print("  ℹ️  Usuário de teste já existe: testuser")
+
+
+def seed_database() -> None:
+    """Seed the database with initial data.
+
+    Creates default achievements and test users in the database if they don't already exist.
     This function is idempotent - it can be safely run multiple times.
     """
     print(" Iniciando o seeding do banco de dados...")
     db = SESSIONLOCAL()
 
     try:
+        # Seed achievements
         for ach_data in ACHIEVEMENTS_TO_SEED:
             exists = (
                 db.query(Achievement)
@@ -90,9 +120,13 @@ def seed_database() -> None:
             else:
                 print(f"  Conquista já existe: {ach_data['name']}")
 
+        # Seed test user
+        seed_test_user(db)
+
         db.commit()
         print(" Seeding concluído com sucesso!")
         print(f" Total de conquistas no banco: {db.query(Achievement).count()}")
+        print(f" Total de usuários no banco: {db.query(User).count()}")
     except Exception as e:
         print(f" Erro durante o seeding: {e}")
         db.rollback()
