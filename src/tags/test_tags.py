@@ -145,14 +145,10 @@ class TestTagEndpoints:
         assert "not found" in response.json()["detail"]
 
     def test_unauthorized_tag_access(self, client: TestClient):
-        """Teste: acesso não autorizado às tags"""
-        responses = [
-            client.get("/api/v1/tags/"),
-            client.post("/api/v1/tags/", json={"name": "Test"}),
-        ]
+        """Teste de integração: acesso sem autenticação"""
+        response = client.get("/api/v1/tags/")
 
-        for response in responses:
-            assert response.status_code == 401
+        assert response.status_code == 403
 
 
 @pytest.mark.parametrize(

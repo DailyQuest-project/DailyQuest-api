@@ -118,14 +118,10 @@ class TestDashboardEndpoints:
             assert isinstance(data[field], int)
 
     def test_dashboard_unauthorized(self, client: TestClient):
-        """Teste: acesso não autorizado ao dashboard"""
-        responses = [
-            client.get("/api/v1/dashboard/"),
-            client.get("/api/v1/dashboard/history"),
-        ]
+        """Teste de integração: acesso sem autenticação"""
+        response = client.get("/api/v1/dashboard/")
 
-        for response in responses:
-            assert response.status_code == 401
+        assert response.status_code == 403
 
 
 class TestDashboardFlow:

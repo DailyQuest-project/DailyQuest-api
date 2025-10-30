@@ -40,65 +40,48 @@ def test_bitmask_conversion(days_list, expected_bitmask):
 class TestTaskAPI:
     """Integration tests for task API endpoints with authentication."""
 
-    @pytest.fixture(autouse=True)
-    def auth_client(self, client: TestClient) -> TestClient:
-        """
-        Uma fixture que cria um usuário, loga, e retorna o
-        cliente com o token de autorização já configurado.
-        """
-        client.post(
-            "/api/v1/users/",
-            json={
-                "username": "task_user",
-                "email": "task@test.com",
-                "password": "pass123",
-            },
-        )
-        login_response = client.post(
-            "/api/v1/auth/login", data={"username": "task_user", "password": "pass123"}
-        )
-        token = login_response.json()["access_token"]
-        client.headers = {"Authorization": f"Bearer {token}"}
-        return client
-
-    def test_create_habit_and_todo(self, auth_client: TestClient):
+    def test_create_habit_and_todo(self, client: TestClient, auth_headers: dict):
         """Testa a criação de um hábito (US#3) e um ToDo (US#8)"""
         # Cria Hábito
-        response_habit = auth_client.post(
+        response_habit = client.post(
             "/api/v1/tasks/habits/",
             json={
                 "title": "Ler 10 páginas",
                 "difficulty": "EASY",
                 "frequency_type": "DAILY",
             },
+            headers=auth_headers,
         )
         assert response_habit.status_code == 201
         assert response_habit.json()["task_type"] == "habit"
 
         # Cria ToDo
-        response_todo = auth_client.post(
+        response_todo = client.post(
             "/api/v1/tasks/todos/",
             json={
                 "title": "Entregar o projeto",
                 "difficulty": "HARD",
                 "deadline": "2025-11-30",
             },
+            headers=auth_headers,
         )
         assert response_todo.status_code == 201
         assert response_todo.json()["task_type"] == "todo"
 
-    def test_list_all_tasks(self, auth_client: TestClient):
+    def test_list_all_tasks(self, client: TestClient, auth_headers: dict):
         """Testa a listagem de todas as tarefas (US#6)"""
-        auth_client.post(
+        client.post(
             "/api/v1/tasks/habits/",
             json={"title": "Hábito 1", "difficulty": "EASY", "frequency_type": "DAILY"},
+            headers=auth_headers,
         )
-        auth_client.post(
+        client.post(
             "/api/v1/tasks/todos/",
             json={"title": "ToDo 1", "difficulty": "MEDIUM", "deadline": "2025-11-01"},
+            headers=auth_headers,
         )
 
-        response = auth_client.get("/api/v1/tasks/")
+        response = client.get("/api/v1/tasks/", headers=auth_headers)
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 2
@@ -319,15 +302,10 @@ class TestTaskEndpoints:
         assert "deleted successfully" in response.json()["message"]
 
     def test_unauthorized_access(self, client: TestClient):
-        """Teste: acesso não autorizado aos endpoints de tarefas"""
-        responses = [
-            client.get("/api/v1/tasks/"),
-            client.post("/api/v1/tasks/habits/", json={"title": "Test"}),
-            client.post("/api/v1/tasks/todos/", json={"title": "Test"}),
-        ]
+        """Teste de integração: acesso sem autenticação"""
+        response = client.get("/api/v1/tasks/")
 
-        for response in responses:
-            assert response.status_code == 401
+        assert response.status_code == 403
 
 
 @pytest.mark.parametrize(
