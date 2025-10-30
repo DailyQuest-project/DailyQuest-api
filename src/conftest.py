@@ -5,6 +5,7 @@ authentication, and test data creation for comprehensive API testing.
 """
 
 import os
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -18,7 +19,7 @@ from src.users.model import User
 from src.achievements.model import Achievement, AchievementKey
 from src.tags.model import Tag
 from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
-from src.utils import hash_password
+from src.security import hash_password
 
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///:memory:")
 
@@ -82,30 +83,25 @@ def test_user(db_session):
 
 
 @pytest.fixture
-def auth_headers(client, test_user):
-    """Fixture que cria headers de autenticação."""
-    response = client.post(
-        "/api/v1/auth/login", data={"username": "testuser", "password": "testpass123"}
-    )
-    assert response.status_code == 200, f"Login failed: {response.text}"
-    token = response.json()["access_token"]
-    return {"Authorization": f"Bearer {token}"}
+def auth_headers(test_user):
+    """Fixture que cria headers de autenticação mockados."""
+    # Como não temos mais o endpoint de auth local, usamos um token mock
+    return {"Authorization": "Bearer mock_token_for_testing"}
 
 
 @pytest.fixture
 def auth_client(client, test_user):
     """
-    Fixture que retorna um cliente já autenticado.
-    Útil para testes que precisam de autenticação sem configurar manualmente.
+    Fixture que retorna um cliente já autenticado com mock do serviço de auth.
     """
-    response = client.post(
-        "/api/v1/auth/login", data={"username": "testuser", "password": "testpass123"}
-    )
-    assert response.status_code == 200, f"Login failed: {response.text}"
+    # Mock da resposta do serviço de autenticação
+    mock_response = AsyncMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {"username": test_user.username}
 
-    token = response.json()["access_token"]
-    client.headers.update({"Authorization": f"Bearer {token}"})
-    return client
+    with patch("httpx.AsyncClient.get", return_value=mock_response):
+        client.headers.update({"Authorization": "Bearer mock_token_for_testing"})
+        return client
 
 
 @pytest.fixture

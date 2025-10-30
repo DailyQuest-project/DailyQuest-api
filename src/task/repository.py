@@ -190,7 +190,11 @@ class TaskRepository:
         )
 
     def update_todo(
-        self, db: Session, todo_id: UUID, user_id: UUID, todo_update: "schema.ToDoUpdate"
+        self,
+        db: Session,
+        todo_id: UUID,
+        user_id: UUID,
+        todo_update: "schema.ToDoUpdate",
     ) -> Optional[model.ToDo]:
         """Atualizar um ToDo existente"""
         db_todo = (

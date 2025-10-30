@@ -147,9 +147,7 @@ class TestTaskRepository:
         assert todo.user_id == test_user.id
         assert todo.completed is False
 
-    def test_update_todo(
-        self, db_session: Session, test_user: User, test_todo: ToDo
-    ):
+    def test_update_todo(self, db_session: Session, test_user: User, test_todo: ToDo):
         """US#8 - Teste unitário: atualizar todo"""
         repo = TaskRepository()
 
@@ -170,9 +168,7 @@ class TestTaskRepository:
         assert updated.title == "Updated Todo"
         assert updated.difficulty == Difficulty.MEDIUM
 
-    def test_delete_todo(
-        self, db_session: Session, test_user: User, test_todo: ToDo
-    ):
+    def test_delete_todo(self, db_session: Session, test_user: User, test_todo: ToDo):
         """US#8 - Teste unitário: deletar todo"""
         repo = TaskRepository()
         result = repo.delete_todo(db_session, test_todo.id, test_user.id)

@@ -100,10 +100,14 @@ def update_todo(
     repo: TaskRepository = Depends(get_task_repository),
 ) -> schema.ToDoResponse:
     """Update an existing ToDo for the authenticated user."""
-    updated_todo = repo.update_todo(db=db, todo_id=todo_id, user_id=current_user.id, todo_update=todo_update)
+    updated_todo = repo.update_todo(
+        db=db, todo_id=todo_id, user_id=current_user.id, todo_update=todo_update
+    )
 
     if not updated_todo:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found"
+        )
 
     return updated_todo
 
@@ -119,7 +123,9 @@ def delete_todo(
     deleted = repo.delete_todo(db=db, todo_id=todo_id, user_id=current_user.id)
 
     if not deleted:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="ToDo not found"
+        )
 
     return {"message": "ToDo deleted successfully"}
 

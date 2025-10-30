@@ -95,8 +95,10 @@ class TaskService:
         user_xp_before = user.xp
 
         # 4. Execute core completion logic (repository persists XP, streaks, completions)
-        completion, updated_user, streak_updated, new_streak = self.completion_repo.complete_task(
-            db=self.db_session, task_id=task_id, user_id=user_id
+        completion, updated_user, streak_updated, new_streak = (
+            self.completion_repo.complete_task(
+                db=self.db_session, task_id=task_id, user_id=user_id
+            )
         )
 
         # 5. Calculate level progression using the single source of truth (service)
@@ -118,7 +120,9 @@ class TaskService:
         # 6. Process achievements now that user's XP/level are up-to-date
         # Use the injected achievement repository
         try:
-            self.achievement_repo.check_and_unlock_achievements(self.db_session, updated_user, task)
+            self.achievement_repo.check_and_unlock_achievements(
+                self.db_session, updated_user, task
+            )
             # Ensure unlocked achievements are persisted
             self.db_session.commit()
         except Exception:

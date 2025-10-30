@@ -1,22 +1,22 @@
 """Dependencies module for DailyQuest API.
 
 This module provides dependency injection functions for database sessions,
-user authentication, and JWT token validation.
+user authentication, and JWT token validation via auth service.
 """
 
-from typing import Generator, Optional
-
+from typing import Generator
+import httpx
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
+from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
 
 from .database import SESSIONLOCAL
 from .users.repository import UserRepository
 from .users.model import User
-from .config import SECRET_KEY, ALGORITHM
+from .config import AUTH_SERVICE_URL
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+# Mudança: usar HTTPBearer ao invés de OAuth2PasswordBearer
+security = HTTPBearer()
 
 
 def get_db() -> Generator[Session, None, None]:
@@ -33,12 +33,12 @@ def get_db() -> Generator[Session, None, None]:
 
 
 async def get_current_user(
-    token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
+    credentials=Depends(security), db: Session = Depends(get_db)
 ) -> User:
-    """Get current authenticated user from JWT token.
+    """Get current authenticated user via auth service validation.
 
     Args:
-        token: JWT access token from Authorization header
+        credentials: HTTP Bearer token from Authorization header
         db: Database session
 
     Returns:
@@ -47,21 +47,46 @@ async def get_current_user(
     Raises:
         HTTPException: If token is invalid or user not found
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: Optional[str] = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-    except JWTError as exc:
-        raise credentials_exception from exc
+    token = credentials.credentials
 
+    # Fazer requisição para o serviço de autenticação
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(
+                f"{AUTH_SERVICE_URL}/login/me",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+
+            if response.status_code != 200:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Could not validate credentials",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+            user_data = response.json()
+            username = user_data.get("username")
+
+            if not username:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid token data",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+
+    except httpx.RequestError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service unavailable",
+        )
+
+    # Buscar usuário no banco local
     user_repo = UserRepository()
     user = user_repo.get_user_by_username(db, username)
     if user is None:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user

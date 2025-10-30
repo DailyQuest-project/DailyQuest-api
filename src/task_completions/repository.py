@@ -12,7 +12,6 @@ from sqlalchemy.orm import Session
 from .model import TaskCompletion
 from ..task.model import Task, Habit, ToDo, Difficulty
 from ..users.model import User
- 
 
 
 class TaskCompletionRepository:

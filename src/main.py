@@ -10,7 +10,6 @@ from fastapi import FastAPI
 
 from src.database import create_tables, wait_for_db
 from src.users.router import router as users_router
-from src.auth.router import router as auth_router
 from src.task.router import router as tasks_router
 from src.tags.router import router as tags_router
 from src.task_completions.router import router as task_completions_router
@@ -69,7 +68,6 @@ app = FastAPI(
 )
 
 app.include_router(users_router, prefix="/api/v1")
-app.include_router(auth_router, prefix="/api/v1")
 app.include_router(tasks_router, prefix="/api/v1")
 app.include_router(task_completions_router, prefix="/api/v1")
 app.include_router(tags_router, prefix="/api/v1")
