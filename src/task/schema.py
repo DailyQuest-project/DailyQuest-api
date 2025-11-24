@@ -11,6 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, computed_field, ConfigDict
 
 from .model import HabitFrequencyType, Difficulty
+from ..tags.schema import TagResponse
 
 
 # Base schemas
@@ -35,6 +36,9 @@ class HabitCreate(BaseModel):
 
     # Lista de dias da semana (0=Segunda, 6=Domingo) - apenas para SPECIFIC_DAYS
     frequency_days: Optional[List[int]] = Field(None, max_length=7)
+    
+    # IDs das tags a serem associadas
+    tag_ids: Optional[List[UUID]] = None
 
 
 class HabitResponse(TaskBase):
@@ -54,6 +58,9 @@ class HabitResponse(TaskBase):
     frequency_type: HabitFrequencyType
     frequency_target_times: Optional[int] = None
     frequency_days_of_week: Optional[int] = None  # Bitmask salvo no banco
+    
+    # Tags associadas
+    tags: List[TagResponse] = []
 
     @computed_field
     @property
@@ -73,6 +80,9 @@ class ToDoCreate(TaskBase):
     """Schema for creating new todos with optional deadlines."""
 
     deadline: Optional[datetime] = None
+    
+    # IDs das tags a serem associadas
+    tag_ids: Optional[List[UUID]] = None
 
 
 class ToDoUpdate(BaseModel):
@@ -97,6 +107,9 @@ class ToDoResponse(TaskBase):
     completed: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None
+    
+    # Tags associadas
+    tags: List[TagResponse] = []
 
 
 TaskResponse = Union[HabitResponse, ToDoResponse]

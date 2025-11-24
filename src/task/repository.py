@@ -57,6 +57,14 @@ class TaskRepository:
             frequency_days_of_week=bitmask_days,
         )
 
+        # Adicionar tags se fornecidas
+        if habit.tag_ids:
+            tags = db.query(Tag).filter(
+                Tag.id.in_(habit.tag_ids),
+                Tag.user_id == user_id
+            ).all()
+            db_habit.tags = tags
+
         db.add(db_habit)
         db.commit()
         db.refresh(db_habit)
@@ -73,6 +81,15 @@ class TaskRepository:
             difficulty=todo.difficulty,
             deadline=todo.deadline,
         )
+        
+        # Adicionar tags se fornecidas
+        if todo.tag_ids:
+            tags = db.query(Tag).filter(
+                Tag.id.in_(todo.tag_ids),
+                Tag.user_id == user_id
+            ).all()
+            db_todo.tags = tags
+        
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)
