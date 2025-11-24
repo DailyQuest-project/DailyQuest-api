@@ -82,3 +82,69 @@ def complete_task(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="An unexpected error occurred while completing the task",
         ) from e
+
+
+@router.delete("/{task_id}/complete", status_code=status.HTTP_200_OK)
+def uncomplete_task(
+    task_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    """
+    Endpoint para remover a conclusão de hoje de uma tarefa.
+    Permite que o usuário "desmarque" uma tarefa que completou hoje.
+    """
+    from datetime import datetime, timedelta
+    from ..task.model import Task, Habit, ToDo
+    from .model import TaskCompletion
+    
+    # Verificar se a tarefa existe e pertence ao usuário
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == current_user.id).first()
+    if not task:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Task not found"
+        )
+    
+    # Buscar a conclusão de hoje
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_end = today_start + timedelta(days=1)
+    
+    completion = (
+        db.query(TaskCompletion)
+        .filter(
+            TaskCompletion.task_id == task_id,
+            TaskCompletion.user_id == current_user.id,
+            TaskCompletion.completed_date >= today_start,
+            TaskCompletion.completed_date < today_end,
+        )
+        .first()
+    )
+    
+    if not completion:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No completion found for today"
+        )
+    
+    # Reverter XP do usuário
+    xp_to_remove = completion.xp_earned
+    current_user.xp = max(0, current_user.xp - xp_to_remove)
+    
+    # Se for habit, reverter streak
+    if isinstance(task, Habit):
+        task.current_streak = max(0, task.current_streak - 1)
+        task.last_completed = None
+    
+    # Se for todo, desmarcar como completado
+    if isinstance(task, ToDo):
+        task.completed = False
+    
+    # Deletar o registro de conclusão
+    db.delete(completion)
+    db.commit()
+    
+    return {
+        "message": "Task completion removed successfully",
+        "xp_removed": xp_to_remove
+    }

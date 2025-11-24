@@ -7,6 +7,7 @@ and application lifecycle management.
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.database import create_tables, wait_for_db
 from src.users.router import router as users_router
@@ -65,6 +66,19 @@ app = FastAPI(
     version="0.1.0",
     openapi_tags=tags_metadata,
     lifespan=lifespan,
+)
+
+# Configuração de CORS para permitir requisições do frontend
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://frontend:3000",
+        "http://127.0.0.1:3000",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(users_router, prefix="/api/v1")

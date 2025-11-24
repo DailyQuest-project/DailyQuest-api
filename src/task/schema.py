@@ -40,14 +40,14 @@ class HabitCreate(BaseModel):
 class HabitResponse(TaskBase):
     """Schema for habit API responses including computed fields."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: UUID
     user_id: UUID
     task_type: str = "habit"
     current_streak: int = 0
     best_streak: int = 0
-    last_completed_at: Optional[datetime] = None
+    last_completed_at: Optional[datetime] = Field(None, validation_alias='last_completed', serialization_alias='last_completed_at')
     created_at: datetime
     updated_at: Optional[datetime] = None
 
@@ -87,7 +87,7 @@ class ToDoUpdate(BaseModel):
 class ToDoResponse(TaskBase):
     """Schema for todo API responses including completion status."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, populate_by_name=True)
 
     id: UUID
     user_id: UUID

@@ -1,3 +1,10 @@
 # DailyQuest-api
 
-docker compose exec backend pytest src/users/test_users.py -v
+##  Relatórios
+
+
+docker compose exec backend pytest --cov=src --cov-report=html:htmlcov --cov-report=term-missing --cov-report=xml
+
+docker compose exec backend pytest --cov=src --cov-report=term-missing
+
+docker compose exec backend pylint src/
