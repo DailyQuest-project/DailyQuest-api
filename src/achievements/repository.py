@@ -72,6 +72,15 @@ class AchievementRepository:
             new_unlock = UserAchievement(user_id=user_id, achievement_id=achievement_id)
             db.add(new_unlock)
             print(f"--- CONQUISTA DESBLOQUEADA: {achievement.name} ---")
+    
+    def check_first_login_achievement(self, db: Session, user_id: UUID) -> None:
+        """
+        Desbloqueia a conquista FIRST_LOGIN quando o usuário faz login pela primeira vez.
+        """
+        achievement = self.get_achievement_by_key(db, AchievementKey.FIRST_LOGIN)
+        if achievement:
+            self.unlock_achievement_for_user(db, user_id, achievement)
+            db.commit()
 
     def check_and_unlock_achievements(
         self, db: Session, user: User, completed_task: Task
@@ -83,8 +92,7 @@ class AchievementRepository:
         user_id = getattr(user, "id")
         user_level = getattr(user, "level", 1)
 
-        # 1. Verificações baseadas em Nível (ex: LEVEL_5)
-        # (Nota: o usuário já foi atualizado com novo XP/Nível pelo repo anterior)
+        # 1. Verificações baseadas em Nível
         if user_level >= 5:
             achievement = self.get_achievement_by_key(db, AchievementKey.LEVEL_5)
             if achievement:
@@ -94,8 +102,18 @@ class AchievementRepository:
             achievement = self.get_achievement_by_key(db, AchievementKey.LEVEL_10)
             if achievement:
                 self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        if user_level >= 20:
+            achievement = self.get_achievement_by_key(db, AchievementKey.LEVEL_20)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        if user_level >= 50:
+            achievement = self.get_achievement_by_key(db, AchievementKey.LEVEL_50)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
 
-        # 2. Verificações baseadas em Tarefa (ex: FIRST_HABIT)
+        # 2. Verificações baseadas em Tarefa
         if isinstance(completed_task, Habit):
             # Conta quantas conclusões de HÁBITOS o usuário tem
             habit_completions_count = (
@@ -126,7 +144,7 @@ class AchievementRepository:
                 if achievement:
                     self.unlock_achievement_for_user(db, user_id, achievement)
 
-        # 3. Verificações baseadas em Streak (ex: STREAK_3)
+        # 3. Verificações baseadas em Streak
         if isinstance(completed_task, Habit):
             current_streak = getattr(completed_task, "current_streak", 0)
             if current_streak >= 3:
@@ -138,3 +156,49 @@ class AchievementRepository:
                 achievement = self.get_achievement_by_key(db, AchievementKey.STREAK_7)
                 if achievement:
                     self.unlock_achievement_for_user(db, user_id, achievement)
+            
+            if current_streak >= 30:
+                achievement = self.get_achievement_by_key(db, AchievementKey.STREAK_30)
+                if achievement:
+                    self.unlock_achievement_for_user(db, user_id, achievement)
+            
+            if current_streak >= 100:
+                achievement = self.get_achievement_by_key(db, AchievementKey.STREAK_100)
+                if achievement:
+                    self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        # 4. Verificações baseadas em Total de Tarefas Completadas
+        total_completions = db.query(TaskCompletion).filter(
+            TaskCompletion.user_id == user_id
+        ).count()
+        
+        if total_completions >= 10:
+            achievement = self.get_achievement_by_key(db, AchievementKey.COMPLETE_10_TASKS)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        if total_completions >= 50:
+            achievement = self.get_achievement_by_key(db, AchievementKey.COMPLETE_50_TASKS)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        if total_completions >= 100:
+            achievement = self.get_achievement_by_key(db, AchievementKey.COMPLETE_100_TASKS)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        if total_completions >= 500:
+            achievement = self.get_achievement_by_key(db, AchievementKey.COMPLETE_500_TASKS)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
+        
+        # 5. Verificação de hábitos criados (CREATE_5_HABITS)
+        total_habits = db.query(Task).filter(
+            Task.user_id == user_id,
+            Task.task_type == "habit"
+        ).count()
+        
+        if total_habits >= 5:
+            achievement = self.get_achievement_by_key(db, AchievementKey.CREATE_5_HABITS)
+            if achievement:
+                self.unlock_achievement_for_user(db, user_id, achievement)
