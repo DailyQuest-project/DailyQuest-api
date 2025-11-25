@@ -16,7 +16,8 @@ from src.tags.router import router as tags_router
 from src.task_completions.router import router as task_completions_router
 from src.achievements.router import router as achievements_router
 from src.dashboard.router import router as dashboard_router
-from .seed import seed_database
+from src.seed import seed_database
+from src.config import TESTING
 
 tags_metadata = [
     {
@@ -53,9 +54,15 @@ async def lifespan(_: FastAPI):
     wait_for_db()
     print("Criando tabelas...")
     create_tables()
-    print("Rodando o seed do banco de dados...")
-    seed_database()
-    print("Seeding concluído (ou dados já existiam). API pronta.")
+    
+    # Só executa o seed se não estiver em modo de teste
+    if not TESTING:
+        print("Rodando o seed do banco de dados...")
+        seed_database()
+        print("Seeding concluído (ou dados já existiam). API pronta.")
+    else:
+        print("Modo de teste detectado - seed desabilitado. API pronta.")
+    
     yield
     print("API desligando...")
 

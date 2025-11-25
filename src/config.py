@@ -24,3 +24,6 @@ AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL", "http://dailyquest-auth-api:808
 
 # Other configurations
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
+
+# Testing Configuration
+TESTING = os.getenv("TESTING", "False").lower() == "true"

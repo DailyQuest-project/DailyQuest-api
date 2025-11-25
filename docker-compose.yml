@@ -51,8 +51,7 @@ services:
     networks:
       - dailyquest-net
     command: pytest src/ --cov=src --cov-report=html --cov-report=term-missing
-    profiles:
-      - testing
+    # Removido profiles para executar automaticamente com docker compose up
 
 volumes:
   postgres_data:
