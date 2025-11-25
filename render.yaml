@@ -1,0 +1,17 @@
+# Render.com Build Configuration
+
+# Build Command (deixe vazio, Docker fará o build)
+# Start Command (deixe vazio, Docker usa CMD do Dockerfile)
+
+# Environment Variables necessárias:
+# SECRET_KEY=5LCZ5KIy4q_lJQcoT5Phs-7Na40ZwYp71ovqUp-CZs4
+# DATABASE_URL=<será_fornecido_pelo_render_postgres>
+# AUTH_SERVICE_URL=<url_do_servico_auth_no_render>
+# JWT_ALGORITHM=HS512
+# DEBUG=False
+# NODE_ENV=production
+# TESTING=False
+
+# Docker
+# Use Dockerfile: Yes
+# Dockerfile Path: ./Dockerfile

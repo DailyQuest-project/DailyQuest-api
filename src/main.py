@@ -50,21 +50,24 @@ tags_metadata = [
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """Gerencia o ciclo de vida da aplicação"""
-    print("API iniciando... Aguardando banco de dados...")
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    logger.info("API iniciando... Aguardando banco de dados...")
     wait_for_db()
-    print("Criando tabelas...")
+    logger.info("Criando tabelas...")
     create_tables()
     
     # Só executa o seed se não estiver em modo de teste
     if not TESTING:
-        print("Rodando o seed do banco de dados...")
+        logger.info("Rodando o seed do banco de dados...")
         seed_database()
-        print("Seeding concluído (ou dados já existiam). API pronta.")
+        logger.info("Seeding concluído (ou dados já existiam). API pronta.")
     else:
-        print("Modo de teste detectado - seed desabilitado. API pronta.")
+        logger.info("Modo de teste detectado - seed desabilitado. API pronta.")
     
     yield
-    print("API desligando...")
+    logger.info("API desligando...")
 
 
 app = FastAPI(
@@ -76,13 +79,29 @@ app = FastAPI(
 )
 
 # Configuração de CORS para permitir requisições do frontend
+import os
+allowed_origins = [
+    "http://localhost:3000",
+    "http://frontend:3000",
+    "http://127.0.0.1:3000",
+]
+
+# Adicionar origem do Vercel em produção
+vercel_url = os.getenv("VERCEL_URL")
+if vercel_url:
+    allowed_origins.extend([
+        f"https://{vercel_url}",
+        "https://*.vercel.app",
+    ])
+
+# Adicionar domínio personalizado se existir
+custom_domain = os.getenv("FRONTEND_URL")
+if custom_domain:
+    allowed_origins.append(custom_domain)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://frontend:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

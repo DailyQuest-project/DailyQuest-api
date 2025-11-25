@@ -1,0 +1,48 @@
+# Docker Compose para PRODUÇÃO
+# USO: docker-compose -f docker-compose.prod.yml up -d
+
+services:
+  db:
+    image: postgres:14-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-dailyquest}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Defina POSTGRES_PASSWORD no .env}
+      POSTGRES_DB: ${POSTGRES_DB:-dailyquest_db}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - dailyquest-net-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dailyquest} -d ${POSTGRES_DB:-dailyquest_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-dailyquest}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-dailyquest_db}
+      SECRET_KEY: ${SECRET_KEY:?Defina SECRET_KEY no .env}
+      JWT_ALGORITHM: HS512
+      AUTH_SERVICE_URL: ${AUTH_SERVICE_URL:-http://auth:8080}
+      NODE_ENV: production
+      DEBUG: "False"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - dailyquest-net-prod
+    restart: unless-stopped
+    # Não expor porta diretamente - usar nginx como reverse proxy
+
+volumes:
+  postgres_data_prod:
+    driver: local
+
+networks:
+  dailyquest-net-prod:
+    name: dailyquest-net-prod
+    driver: bridge
