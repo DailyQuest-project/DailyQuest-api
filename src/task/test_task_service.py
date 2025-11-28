@@ -4,9 +4,9 @@ This module contains real integration tests for the TaskService class,
 testing business logic with real database operations and dependencies.
 """
 
-import pytest
-from sqlalchemy.orm import Session
 from uuid import uuid4
+
+import pytest
 
 from src.task.service import TaskService, TaskAlreadyCompletedError, TaskNotFoundError
 from src.task.model import Habit, ToDo, Difficulty, HabitFrequencyType
@@ -135,7 +135,7 @@ class TestTaskServiceIntegration:
         assert real_user.xp == 80
 
     def test_prevent_duplicate_habit_completion_real_data(
-        self, task_service, db_session, real_user, real_habit
+        self, task_service, db_session, real_user, real_habit  # pylint: disable=unused-argument
     ):
         """Test that habits cannot be completed multiple times on the same day."""
         # Complete habit first time

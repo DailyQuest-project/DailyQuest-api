@@ -141,6 +141,7 @@ class TestTaskRepository:
         }
 
         # Use schema ToDoUpdate
+        # pylint: disable=import-outside-toplevel
         from src.task.schema import ToDoUpdate
 
         todo_update = ToDoUpdate(**update_data)
@@ -163,7 +164,11 @@ class TestTaskRepository:
         assert deleted_todo is None
 
     def test_get_tasks_by_user(
-        self, db_session: Session, test_user: User, test_habit: Habit, test_todo: ToDo
+        self,
+        db_session: Session,
+        test_user: User,
+        test_habit: Habit,  # pylint: disable=unused-argument
+        test_todo: ToDo,  # pylint: disable=unused-argument
     ):
         """US#6 - Teste unitário: listar tarefas do usuário"""
         repo = TaskRepository()
@@ -253,7 +258,11 @@ class TestTaskEndpoints:
         assert data["completed"] is False
 
     def test_get_user_tasks(
-        self, client: TestClient, auth_headers: dict, test_habit: Habit, test_todo: ToDo
+        self,
+        client: TestClient,
+        auth_headers: dict,
+        test_habit: Habit,  # pylint: disable=unused-argument
+        test_todo: ToDo,  # pylint: disable=unused-argument
     ):
         """US#6 - Teste de integração: GET /tasks/"""
         response = client.get("/api/v1/tasks/", headers=auth_headers)

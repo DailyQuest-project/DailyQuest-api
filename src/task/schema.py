@@ -4,7 +4,7 @@ This module defines the data validation schemas for task-related
 operations including habits and todos creation, updates, and API responses.
 """
 
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional, List, Union
 from uuid import UUID
 
@@ -36,7 +36,7 @@ class HabitCreate(BaseModel):
 
     # Lista de dias da semana (0=Segunda, 6=Domingo) - apenas para SPECIFIC_DAYS
     frequency_days: Optional[List[int]] = Field(None, max_length=7)
-    
+
     # IDs das tags a serem associadas
     tag_ids: Optional[List[UUID]] = None
 
@@ -51,14 +51,16 @@ class HabitResponse(TaskBase):
     task_type: str = "habit"
     current_streak: int = 0
     best_streak: int = 0
-    last_completed_at: Optional[datetime] = Field(None, validation_alias='last_completed', serialization_alias='last_completed_at')
+    last_completed_at: Optional[datetime] = Field(
+        None, validation_alias='last_completed', serialization_alias='last_completed_at'
+    )
     created_at: datetime
     updated_at: Optional[datetime] = None
 
     frequency_type: HabitFrequencyType
     frequency_target_times: Optional[int] = None
     frequency_days_of_week: Optional[int] = None  # Bitmask salvo no banco
-    
+
     # Tags associadas
     tags: List[TagResponse] = []
 
@@ -80,7 +82,7 @@ class ToDoCreate(TaskBase):
     """Schema for creating new todos with optional deadlines."""
 
     deadline: Optional[datetime] = None
-    
+
     # IDs das tags a serem associadas
     tag_ids: Optional[List[UUID]] = None
 
@@ -107,7 +109,7 @@ class ToDoResponse(TaskBase):
     completed: bool = False
     created_at: datetime
     updated_at: Optional[datetime] = None
-    
+
     # Tags associadas
     tags: List[TagResponse] = []
 

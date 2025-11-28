@@ -1,3 +1,9 @@
+"""Tests for dashboard functionality in DailyQuest API.
+
+This module contains tests for dashboard repository and endpoints,
+including completion history and user statistics.
+"""
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -72,7 +78,7 @@ class TestDashboardEndpoints:
         data = response.json()
         assert data == []
 
-    def test_get_user_history_with_completions(
+    def test_get_user_history_with_completions(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         client: TestClient,
         auth_headers: dict,
@@ -128,7 +134,7 @@ class TestDashboardFlow:
     """Testes de fluxo completo do dashboard"""
 
     def test_complete_dashboard_flow(self, client: TestClient, auth_headers: dict):
-        """US#9, US#19 - Fluxo: Criar hábito → Completar → Verificar dashboard → Verificar histórico"""
+        """US#9, US#19 - Fluxo: Criar → Completar → Verificar dashboard → Verificar histórico"""
         # 1. Criar hábito
         habit_response = client.post(
             "/api/v1/tasks/habits/",
@@ -175,7 +181,7 @@ class TestDashboardFlow:
         (5, 50),
     ],
 )
-def test_dashboard_stats_parametrized(
+def test_dashboard_stats_parametrized(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     client: TestClient,
     auth_headers: dict,
     db_session: Session,
@@ -186,7 +192,7 @@ def test_dashboard_stats_parametrized(
 ):
     """US#19 - Testes parametrizados: dashboard com diferentes quantidades de completions"""
     # Criar completions
-    for i in range(num_completions):
+    for _ in range(num_completions):
         completion = TaskCompletion(
             task_id=test_habit.id, user_id=test_user.id, xp_earned=10
         )

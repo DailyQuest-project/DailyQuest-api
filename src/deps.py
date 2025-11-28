@@ -56,12 +56,12 @@ def validate_token_locally(token: str) -> str:
                 headers={"WWW-Authenticate": "Bearer"},
             )
         return username
-    except JWTError:
+    except JWTError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
 
 
 async def get_current_user(

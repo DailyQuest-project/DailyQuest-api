@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from passlib.context import CryptContext
-from jose import JWTError, jwt
+from jose import jwt
 
 from src.config import SECRET_KEY, ALGORITHM
 

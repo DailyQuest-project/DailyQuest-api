@@ -4,6 +4,8 @@ This module contains the FastAPI application setup, router configuration,
 and application lifecycle management.
 """
 
+import logging
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -50,14 +52,13 @@ tags_metadata = [
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """Gerencia o ciclo de vida da aplicação"""
-    import logging
     logger = logging.getLogger(__name__)
-    
+
     logger.info("API iniciando... Aguardando banco de dados...")
     wait_for_db()
     logger.info("Criando tabelas...")
     create_tables()
-    
+
     # Só executa o seed se não estiver em modo de teste
     if not TESTING:
         logger.info("Rodando o seed do banco de dados...")
@@ -65,7 +66,7 @@ async def lifespan(_: FastAPI):
         logger.info("Seeding concluído (ou dados já existiam). API pronta.")
     else:
         logger.info("Modo de teste detectado - seed desabilitado. API pronta.")
-    
+
     yield
     logger.info("API desligando...")
 
@@ -79,7 +80,6 @@ app = FastAPI(
 )
 
 # Configuração de CORS para permitir requisições do frontend
-import os
 allowed_origins = [
     "http://localhost:3000",
     "http://frontend:3000",

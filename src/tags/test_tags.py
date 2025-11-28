@@ -29,7 +29,7 @@ class TestTagRepository:
         assert tag.user_id == test_user.id
 
     def test_get_tags_by_user(
-        self, db_session: Session, test_user: User, test_tag: Tag
+        self, db_session: Session, test_user: User, test_tag: Tag  # pylint: disable=unused-argument
     ):
         """US#7 - Teste unitário: listar tags do usuário"""
         repo = TagRepository()

@@ -5,8 +5,7 @@ authentication, and test data creation for comprehensive API testing.
 """
 
 import os
-from datetime import datetime, timedelta
-from typing import Dict
+from datetime import timedelta
 
 import pytest
 from fastapi.testclient import TestClient

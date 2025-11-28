@@ -1,3 +1,9 @@
+"""Tests for task completion functionality in DailyQuest API.
+
+This module contains tests for task completion repository and endpoints,
+including XP calculation, streak management, and completion tracking.
+"""
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
@@ -41,7 +47,7 @@ class TestTaskCompletionRepository:
         db_session.add(habit)
         db_session.commit()
 
-        completion, updated_user, streak_updated, new_streak = repo.complete_task(
+        completion, _updated_user, streak_updated, new_streak = repo.complete_task(
             db_session, habit.id, test_user.id
         )
 
@@ -65,7 +71,7 @@ class TestTaskCompletionRepository:
         db_session.add(todo)
         db_session.commit()
 
-        completion, updated_user, streak_updated, new_streak = repo.complete_task(
+        completion, _updated_user, _streak_updated, _new_streak = repo.complete_task(
             db_session, todo.id, test_user.id
         )
 
@@ -179,7 +185,9 @@ class TestGamificationFlow:
     ],
 )
 def test_xp_calculation_all_combinations(
-    task_type: str, difficulty: str, expected_xp: int
+    task_type: str,  # pylint: disable=unused-argument
+    difficulty: str,
+    expected_xp: int
 ):
     """US#5 - Testes parametrizados: cálculo de XP para todas as combinações"""
     xp_values = {"EASY": 10, "MEDIUM": 20, "HARD": 30}

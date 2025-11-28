@@ -4,12 +4,9 @@ This module implements the TaskService class that orchestrates complex business 
 including task completion, gamification, level-up calculations, and validation rules.
 """
 
-from datetime import datetime, timedelta
-from typing import Dict, Any, Tuple
+from typing import Dict, Any
 from uuid import UUID
 from sqlalchemy.orm import Session
-
-from fastapi import HTTPException
 
 from .model import Task, Habit, ToDo, Difficulty
 from .repository import TaskRepository
@@ -23,13 +20,9 @@ from ..achievements.repository import AchievementRepository
 class TaskAlreadyCompletedError(Exception):
     """Exception raised when trying to complete an already completed task."""
 
-    pass
-
 
 class TaskNotFoundError(Exception):
     """Exception raised when task is not found or doesn't belong to user."""
-
-    pass
 
 
 class TaskService:
@@ -57,7 +50,9 @@ class TaskService:
         self.achievement_repo = achievement_repo
         self.db_session: Session = None  # Will be injected by the router
 
-    def complete_task(self, task_id: UUID, user_id: UUID) -> Dict[str, Any]:
+    def complete_task(  # pylint: disable=too-many-locals
+        self, task_id: UUID, user_id: UUID
+    ) -> Dict[str, Any]:
         """Complete a task with full gamification logic.
 
         This is the main business logic method that:
@@ -76,7 +71,8 @@ class TaskService:
 
         Raises:
             TaskNotFoundError: If task doesn't exist or doesn't belong to user
-            TaskAlreadyCompletedError: If task was already completed today (habits) or is already done (todos)
+            TaskAlreadyCompletedError: If task was already completed today (habits)
+                or is already done (todos)
         """
         if not self.db_session:
             raise ValueError(
@@ -119,17 +115,11 @@ class TaskService:
 
         # 6. Process achievements now that user's XP/level are up-to-date
         # Use the injected achievement repository
-        try:
-            self.achievement_repo.check_and_unlock_achievements(
-                self.db_session, updated_user, task
-            )
-            # Ensure unlocked achievements are persisted
-            self.db_session.commit()
-        except Exception:
-            # If achievements check fails, we don't want to break the completion flow
-            # but we also don't want to hide errors silently in production.
-            # Re-raise to let higher layers handle or log accordingly.
-            raise
+        self.achievement_repo.check_and_unlock_achievements(
+            self.db_session, updated_user, task
+        )
+        # Ensure unlocked achievements are persisted
+        self.db_session.commit()
 
         # 7. Prepare comprehensive response
         return self._build_completion_response(
@@ -184,7 +174,7 @@ class TaskService:
                     "This habit has already been completed today. Try again tomorrow!"
                 )
 
-    def _build_completion_response(
+    def _build_completion_response(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         completion: TaskCompletion,
         updated_user: User,
@@ -213,7 +203,8 @@ class TaskService:
                 )
             else:
                 message_parts.append(
-                    f"🎉 Multiple level ups! You jumped {levels_gained} levels to level {updated_user.level}!"
+                    f"🎉 Multiple level ups! You jumped {levels_gained} levels "
+                    f"to level {updated_user.level}!"
                 )
 
         return {
@@ -260,12 +251,13 @@ class TaskService:
         xp_for_next_level = current_level * 100
         return xp_for_next_level - current_xp
 
-    def validate_habit_frequency_completion(self, habit: Habit) -> bool:
+    def validate_habit_frequency_completion(self, habit: Habit) -> bool:  # pylint: disable=unused-argument
         """Validate if habit can be completed based on its frequency settings.
 
         This is a placeholder for more complex frequency validation logic.
         Currently, the basic daily completion check is handled elsewhere.
         """
         # Future enhancement: Handle WEEKLY_TIMES, SPECIFIC_DAYS frequency types
-        # For now, return True as basic validation is handled in _validate_task_completion_eligibility
+        # For now, return True as basic validation is handled in
+        # _validate_task_completion_eligibility
         return True

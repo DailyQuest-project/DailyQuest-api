@@ -81,7 +81,7 @@ class TaskRepository:
             difficulty=todo.difficulty,
             deadline=todo.deadline,
         )
-        
+
         # Adicionar tags se fornecidas
         if todo.tag_ids:
             tags = db.query(Tag).filter(
@@ -89,7 +89,7 @@ class TaskRepository:
                 Tag.user_id == user_id
             ).all()
             db_todo.tags = tags
-        
+
         db.add(db_todo)
         db.commit()
         db.refresh(db_todo)

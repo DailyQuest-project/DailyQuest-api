@@ -28,25 +28,25 @@ class AchievementKey(str, PyEnum):
     LEVEL_10 = "LEVEL_10"
     LEVEL_20 = "LEVEL_20"
     LEVEL_50 = "LEVEL_50"
-    
+
     # Primeiros Passos
     FIRST_HABIT = "FIRST_HABIT"
     FIRST_TODO = "FIRST_TODO"
     FIRST_LOGIN = "FIRST_LOGIN"
     CREATE_5_HABITS = "CREATE_5_HABITS"
-    
+
     # Streaks
     STREAK_3 = "STREAK_3"
     STREAK_7 = "STREAK_7"
     STREAK_30 = "STREAK_30"
     STREAK_100 = "STREAK_100"
-    
+
     # Produtividade
     COMPLETE_10_TASKS = "COMPLETE_10_TASKS"
     COMPLETE_50_TASKS = "COMPLETE_50_TASKS"
     COMPLETE_100_TASKS = "COMPLETE_100_TASKS"
     COMPLETE_500_TASKS = "COMPLETE_500_TASKS"
-    
+
     # Especiais
     PERFECT_WEEK = "PERFECT_WEEK"  # 7 dias seguidos completando todas as tarefas
     EARLY_BIRD = "EARLY_BIRD"  # Completar tarefa antes das 8h
