@@ -32,7 +32,6 @@ services:
       - dailyquest-net
     restart: unless-stopped
 
-  # Serviço dedicado para testes
   tests:
     build: .
     environment:
@@ -51,7 +50,6 @@ services:
     networks:
       - dailyquest-net
     command: pytest src/ --cov=src --cov-report=html --cov-report=term-missing
-    # Removido profiles para executar automaticamente com docker compose up
 
 volumes:
   postgres_data:
